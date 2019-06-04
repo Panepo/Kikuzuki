@@ -1,0 +1,23 @@
+{
+  "search.exclude": {
+      "**/node_modules": true
+    },
+    "python.pythonPath": "C:\\ProgramData\\Anaconda3\\pythonw.exe",
+    "editor.fontSize": 16,
+    "editor.tabSize": 2,
+    "editor.renderWhitespace": "boundary",
+    "editor.detectIndentation": false,
+    "editor.wrappingIndent": "none",
+    "editor.insertSpaces": true,
+    "[javascript]": {
+        "editor.formatOnSave": true
+    },
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "explorer.sortOrder": "type",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.colorTheme": "Dark+ Material",
+    "flow.useNPMPackagedFlow": true,
+    "javascript.validate.enable": false,
+    "javascript.format.enable": false,
+}
