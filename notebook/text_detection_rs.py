@@ -93,7 +93,6 @@ def decode(scores, geometry, scoreThresh):
     # Return detections and confidences
     return [detections, confidences]
 
-
 def detectDevice():
     deviceDetect = False
     ctx = rs.context()
@@ -117,7 +116,6 @@ def detectDevice():
 
     if deviceDetect is not True:
         raise Exception("No supported device was found")
-
 
 def main():
     # Read and store arguments
@@ -147,63 +145,86 @@ def main():
     outNames.append("feature_fusion/Conv_7/Sigmoid")
     outNames.append("feature_fusion/concat_3")
 
-    while cv.waitKey(1) < 0:
-        # Read frame
-        frames = pipeline.wait_for_frames()
-        color_frame = frames.get_color_frame()
-        if not color_frame:
-            cv.waitKey()
-            break
+    flagCapture = False
 
-        frame = np.asanyarray(color_frame.get_data())
-        # Get frame height and width
-        height_ = frame.shape[0]
-        width_ = frame.shape[1]
-        rW = width_ / float(inpWidth)
-        rH = height_ / float(inpHeight)
+    try:
+        while True:
+            # Read frame
+            frames = pipeline.wait_for_frames()
+            color_frame = frames.get_color_frame()
+            if not color_frame:
+                cv.waitKey()
+                break
 
-        # Create a 4D blob from frame.
-        blob = cv.dnn.blobFromImage(
-            frame,
-            1.0,
-            (inpWidth, inpHeight),
-            (123.68, 116.78, 103.94),
-            swapRB=True,
-            crop=False,
-        )
+            frame = np.asanyarray(color_frame.get_data())
+            # Get frame height and width
+            height_ = frame.shape[0]
+            width_ = frame.shape[1]
+            rW = width_ / float(inpWidth)
+            rH = height_ / float(inpHeight)
 
-        # Run the model
-        net.setInput(blob)
-        outs = net.forward(outNames)
-        t, _ = net.getPerfProfile()
-        label = "Inference time: %.2f ms" % (t * 1000.0 / cv.getTickFrequency())
+            # Create a 4D blob from frame.
+            blob = cv.dnn.blobFromImage(
+                frame,
+                1.0,
+                (inpWidth, inpHeight),
+                (123.68, 116.78, 103.94),
+                swapRB=True,
+                crop=False,
+            )
 
-        # Get scores and geometry
-        scores = outs[0]
-        geometry = outs[1]
-        [boxes, confidences] = decode(scores, geometry, confThreshold)
+            # Run the model
+            net.setInput(blob)
+            outs = net.forward(outNames)
+            t, _ = net.getPerfProfile()
+            label = "Inference time: %.2f ms" % (t * 1000.0 / cv.getTickFrequency())
 
-        # Apply NMS
-        indices = cv.dnn.NMSBoxesRotated(
-            boxes, confidences, confThreshold, nmsThreshold
-        )
-        for i in indices:
-            # get 4 corners of the rotated rect
-            vertices = cv.boxPoints(boxes[i[0]])
-            # scale the bounding box coordinates based on the respective ratios
-            for j in range(4):
-                vertices[j][0] *= rW
-                vertices[j][1] *= rH
-            for j in range(4):
-                p1 = (vertices[j][0], vertices[j][1])
-                p2 = (vertices[(j + 1) % 4][0], vertices[(j + 1) % 4][1])
-                cv.line(frame, p1, p2, (0, 255, 0), 2)
+            # Get scores and geometry
+            scores = outs[0]
+            geometry = outs[1]
+            [boxes, confidences] = decode(scores, geometry, confThreshold)
 
-        # Put efficiency information
-        cv.putText(frame, label, (0, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
+            # Apply NMS
+            indices = cv.dnn.NMSBoxesRotated(
+                boxes, confidences, confThreshold, nmsThreshold
+            )
+            for i in indices:
+                # get 4 corners of the rotated rect
+                vertices = cv.boxPoints(boxes[i[0]])
+                # scale the bounding box coordinates based on the respective ratios
+                for j in range(4):
+                    vertices[j][0] *= rW
+                    vertices[j][1] *= rH
+                for j in range(4):
+                    p1 = (vertices[j][0], vertices[j][1])
+                    p2 = (vertices[(j + 1) % 4][0], vertices[(j + 1) % 4][1])
+                    cv.line(frame, p1, p2, (0, 255, 0), 2)
 
-        # Display the frame
-        cv.imshow(kWinName, frame)
+            # Put efficiency information
+            cv.putText(frame, label, (0, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
+
+            # Display the frame
+            cv.imshow(kWinName, frame)
+
+            # Process screen capture
+            if flagCapture:
+                cv.imwrite("capture.png", frame, [int(cv.IMWRITE_PNG_COMPRESSION), 0])
+                flagCapture = False
+
+            getKey = cv.waitKey(1) & 0xFF
+            if getKey is ord('c') or getKey is ord('C'):
+                flagCapture = True
+            elif getKey is ord('q') or getKey is ord('Q'):
+                break
+
+    except Exception as e:
+        print(e)
+        pass
+
+    finally:
+        # Stop streaming
+        cv.destroyAllWindows()
+        pipeline.stop()
 
 
 if __name__ == "__main__":
