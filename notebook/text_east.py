@@ -3,7 +3,6 @@ import cv2 as cv
 import math
 import argparse
 import time
-import pytesseract
 
 ############ Add argument parser for command line arguments ############
 parser = argparse.ArgumentParser(
@@ -106,14 +105,10 @@ def main():
     inpWidth = args.width
     inpHeight = args.height
 
-    # Read model
     if args.model:
         model = args.model
     else:
-        model = "frozen_east_text_detection.pb"
-
-    # pytesseract config
-    config = ("-l eng --oem 1 --psm 7")
+        model = "../model/frozen_east_text_detection.pb"
 
     # Load network
     net = cv.dnn.readNet(model)
@@ -177,15 +172,6 @@ def main():
                 p1 = (vertices[j][0], vertices[j][1])
                 p2 = (vertices[(j + 1) % 4][0], vertices[(j + 1) % 4][1])
                 cv.line(frame, p1, p2, (0, 255, 0), 2)
-
-            rect = cv.boundingRect(vertices)
-            startX = max(0, rect[0]-30)
-            startY = max(0, rect[1]-30)
-            endX = min(width_, rect[0]+rect[2]+30)
-            endY = min(height_, rect[1]+rect[3]+30)
-            roi = frame[startY:endY, startX:endX]
-            text = pytesseract.image_to_string(roi, config=config)
-            cv.putText(frame, text, (rect[0], rect[1]+rect[3]+30), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
 
         # Put efficiency information
         cv.putText(frame, label, (0, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
