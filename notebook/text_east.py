@@ -114,7 +114,7 @@ def main():
     net = cv.dnn.readNet(model)
 
     # Create a new named window
-    kWinName = "EAST: An Efficient and Accurate Scene Text Detector"
+    kWinName = "Text detection demo with EAST"
     cv.namedWindow(kWinName, cv.WINDOW_NORMAL)
     outNames = []
     outNames.append("feature_fusion/Conv_7/Sigmoid")
