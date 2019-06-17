@@ -7,7 +7,7 @@ import pytesseract
 
 ############ Add argument parser for command line arguments ############
 parser = argparse.ArgumentParser(
-    description="Use this script to run TensorFlow implementation (https://github.com/argman/EAST) of EAST: An Efficient and Accurate Scene Text Detector (https://arxiv.org/abs/1704.03155v2)"
+    description="Use this script to run TensorFlow implementation (https://github.com/argman/EAST) of EAST: An Efficient and Accurate Scene Text Detector (https://arxiv.org/abs/1704.03155v2) with tesseract OCR."
 )
 parser.add_argument(
     "--input",
