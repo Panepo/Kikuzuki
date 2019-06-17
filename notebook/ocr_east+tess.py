@@ -120,7 +120,6 @@ def main():
 
     # Create a new named window
     kWinName = "OCR demo with EAST and tesseract"
-    cv.namedWindow(kWinName, cv.WINDOW_NORMAL)
     outNames = []
     outNames.append("feature_fusion/Conv_7/Sigmoid")
     outNames.append("feature_fusion/concat_3")
@@ -129,6 +128,9 @@ def main():
     cap = cv.VideoCapture(args.input if args.input else 0)
 
     while cv.waitKey(1) < 0:
+        # Save program start time
+        start_time = time.time()
+
         # Read frame
         hasFrame, frame = cap.read()
         if not hasFrame:
@@ -188,6 +190,10 @@ def main():
             cv.putText(frame, text, (rect[0], rect[1]+rect[3]), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
 
         # Put efficiency information
+        cv.putText(frame, label, (0, 60), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
+
+        # Calculate processing time
+        label = "Process time: %.2f ms" % ((time.time() - start_time) * 1000)
         cv.putText(frame, label, (0, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
 
         # Display the frame

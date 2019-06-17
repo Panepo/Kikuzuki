@@ -22,12 +22,14 @@ def main():
 
     # Create a new named window
     kWinName = "OCR demo with tesseract"
-    cv.namedWindow(kWinName, cv.WINDOW_NORMAL)
 
     # Open a video file or an image file or a camera stream
     cap = cv.VideoCapture(args.input if args.input else 0)
 
     while cv.waitKey(1) < 0:
+        # Save program start time
+        start_time = time.time()
+
         # Read frame
         hasFrame, frame = cap.read()
         if not hasFrame:
@@ -36,8 +38,12 @@ def main():
 
         # Put OCR information
         text = pytesseract.image_to_string(frame, config=config)
-        cv.putText(frame, text, (0, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
+        cv.putText(frame, text, (0, 60), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
         print("decode text: " + text)
+
+        # Calculate processing time
+        label = "Process time: %.2f ms" % ((time.time() - start_time) * 1000)
+        cv.putText(frame, label, (0, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255))
 
         # Display the frame
         cv.imshow(kWinName, frame)
