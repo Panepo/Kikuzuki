@@ -4,7 +4,7 @@
     },
     "python.pythonPath": "C:\\ProgramData\\Anaconda3\\pythonw.exe",
     "editor.fontSize": 16,
-    "editor.tabSize": 2,
+    "editor.tabSize": 4,
     "editor.renderWhitespace": "boundary",
     "editor.detectIndentation": false,
     "editor.wrappingIndent": "none",

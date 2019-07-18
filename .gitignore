@@ -204,5 +204,8 @@ yarn-error.log*
 /archive
 /flow-typed
 
-*.jpg
-*.png
+/temp/
+/images/
+/python/pickle/
+/python/log/
+/python/output/
