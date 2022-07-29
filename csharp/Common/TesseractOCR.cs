@@ -27,7 +27,7 @@ namespace Kikuzuki
             {
                 using (Image Dummy = Image.FromFile(imagePath))
                 {
-                    Pix Pix = PixConverter.ToPix(new Bitmap(Dummy));
+                    Pix Pix = PixConverter.ToPix(ResizeImage(new Bitmap(Dummy), Dummy.Width * 2, Dummy.Height * 2));
                     using (var page = Engine.Process(Pix))
                     {
                         string text = page.GetText();
@@ -75,7 +75,7 @@ namespace Kikuzuki
                     bitmap.Save("screenCapture.bmp");
                 }
 
-                Pix Pix = PixConverter.ToPix(ResizeImage(new Bitmap(bitmap), size.Width*2, size.Height*2));
+                Pix Pix = PixConverter.ToPix(ResizeImage(new Bitmap(bitmap), size.Width * 2, size.Height * 2));
                 using (var page = Engine.Process(Pix))
                 {
                     string text = page.GetText();
