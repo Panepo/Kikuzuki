@@ -13,8 +13,8 @@ namespace Kikuzuki
         {
             TesseractOCR Ocr = new TesseractOCR(AppDomain.CurrentDomain.BaseDirectory, "eng");
 
-            Console.WriteLine("OCR Test");
             Console.WriteLine(Ocr.ProcessScreen( new Point(0), new Point(0), new Size(300, 300 ), true ));
+            // Console.WriteLine(Ocr.ProcessFile("screenCapture.bmp"));
             
             Console.ReadKey();
         }
