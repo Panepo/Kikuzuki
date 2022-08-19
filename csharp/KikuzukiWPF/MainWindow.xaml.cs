@@ -44,7 +44,10 @@ namespace KikuzukiWPF
             {
                 Bitmap src = new Bitmap(dlg.FileName);
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
-                textDst.Text = TesseractOCR.ImageOCR(src);
+
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src);
+                textDst.Text = det.Text.Replace("\n", " | ").Replace("\r", " | "); ;
+                imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
             }
         }
     }
