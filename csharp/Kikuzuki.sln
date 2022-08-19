@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OCR", "OCR\OCR.csproj", "{4E92115C-6C85-446D-83A5-DC72C645A2FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KikuzukiWPF", "KikuzukiWPF\KikuzukiWPF.csproj", "{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4E92115C-6C85-446D-83A5-DC72C645A2FA}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{4E92115C-6C85-446D-83A5-DC72C645A2FA}.Debug|Any CPU.Build.0 = Debug|x64
-		{4E92115C-6C85-446D-83A5-DC72C645A2FA}.Debug|x64.ActiveCfg = Debug|x64
-		{4E92115C-6C85-446D-83A5-DC72C645A2FA}.Debug|x64.Build.0 = Debug|x64
-		{4E92115C-6C85-446D-83A5-DC72C645A2FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4E92115C-6C85-446D-83A5-DC72C645A2FA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4E92115C-6C85-446D-83A5-DC72C645A2FA}.Release|x64.ActiveCfg = Release|x64
-		{4E92115C-6C85-446D-83A5-DC72C645A2FA}.Release|x64.Build.0 = Release|x64
+		{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}.Debug|x64.ActiveCfg = Debug|x64
+		{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}.Debug|x64.Build.0 = Debug|x64
+		{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}.Release|x64.ActiveCfg = Release|x64
+		{ADD279BC-7CFF-4247-8AE1-2A16633D8BF8}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
