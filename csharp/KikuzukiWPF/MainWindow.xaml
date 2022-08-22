@@ -5,27 +5,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="565" Width="800"
+        Title="Kikuzuki Optical Character Recognition" Height="790" Width="1200"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}" WindowStyle="None">
+        FontFamily="{DynamicResource MaterialDesignFont}">
     <Grid>
         <materialDesign:Card Margin="8">
             <GroupBox x:Name="groupBox" Header="Kikuzuki Optical Character Recognition">
                 <StackPanel Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal" Height="400">
-                        <Image Grid.Column="1" x:Name="imgSrc" Margin="0,0,5,0" Height="400" Width="378"/>
-                        <Image Grid.Column="2" x:Name="imgDst" Margin="5,0,0,0" Height="400" Width="378"/>
+                    <StackPanel Orientation="Horizontal" Height="600">
+                        <Image Grid.Column="1" x:Name="imgSrc" Margin="0,0,5,0" Height="600" Width="578"/>
+                        <Image Grid.Column="2" x:Name="imgDst" Margin="5,0,0,0" Height="600" Width="578"/>
                     </StackPanel>
                     <StackPanel Orientation="Vertical">
-                        <TextBox x:Name="textDst" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Recognition Result" TextWrapping="NoWrap" AcceptsReturn="False" IsReadOnly="True"  />
-                        <Button Margin="0,10,0,0" Click="ButtonClick">
+                        <TextBox x:Name="textDst" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Recognition Result" TextWrapping="NoWrap" AcceptsReturn="False" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button Click="ButtonFileClick" Margin="0,10,5,0" Width="578">
                             <TextBlock>Load Image</TextBlock>
                         </Button>
+                            <Button Click="ButtonClipboardClick" Margin="5,10,0,0" Width="578">
+                                <TextBlock>Load from Clipboard</TextBlock>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </GroupBox>

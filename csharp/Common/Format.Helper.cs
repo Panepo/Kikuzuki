@@ -1,47 +1,51 @@
 using System;
-using System.IO;
 using System.Windows;
-using System.Drawing;
-using System.Windows.Media.Imaging;
-using System.Runtime.InteropServices;
-using System.Windows.Media;
-using System.Windows.Interop;
 
 namespace Kikuzuki
 {
     internal class FormatHelper
     {
-        public static Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
+        public static System.Drawing.Bitmap BitmapImage2Bitmap(System.Windows.Media.Imaging.BitmapImage src)
         {
-            using (MemoryStream outStream = new MemoryStream())
+            using (System.IO.MemoryStream outStream = new System.IO.MemoryStream())
             {
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                System.Windows.Media.Imaging.BitmapEncoder enc = new System.Windows.Media.Imaging.BmpBitmapEncoder();
+                enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(src));
                 enc.Save(outStream);
-                Bitmap bitmap = new Bitmap(outStream);
-
-                return new Bitmap(bitmap);
+                return new System.Drawing.Bitmap(outStream);
             }
         }
 
-        public static BitmapImage Bitmap2BitmapImage(Bitmap src)
+        public static System.Windows.Media.Imaging.BitmapImage Bitmap2BitmapImage(System.Drawing.Bitmap src)
         {
-            using (MemoryStream memStream = new MemoryStream())
+            using (System.IO.MemoryStream memStream = new System.IO.MemoryStream())
             {
                 ((System.Drawing.Bitmap)src).Save(memStream, System.Drawing.Imaging.ImageFormat.Bmp);
-                BitmapImage image = new BitmapImage();
+                System.Windows.Media.Imaging.BitmapImage image = new System.Windows.Media.Imaging.BitmapImage();
                 image.BeginInit();
-                memStream.Seek(0, SeekOrigin.Begin);
+                memStream.Seek(0, System.IO.SeekOrigin.Begin);
                 image.StreamSource = memStream;
                 image.EndInit();
                 return image;
             }
         }
 
-        public static ImageSource Bitmap2ImageSource(Bitmap bitmap)
+        public static System.Windows.Media.ImageSource Bitmap2ImageSource(System.Drawing.Bitmap src)
         {
-            IntPtr handle = bitmap.GetHbitmap();
-            return Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            IntPtr handle = src.GetHbitmap();
+            return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+        }
+
+        public static System.Drawing.Bitmap BitmapSource2Bitmap(System.Windows.Media.Imaging.BitmapSource src)
+        {
+            using (System.IO.MemoryStream outStream = new System.IO.MemoryStream())
+            {
+                System.Windows.Media.Imaging.BitmapEncoder enc = new System.Windows.Media.Imaging.BmpBitmapEncoder();
+
+                enc.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(src));
+                enc.Save(outStream);
+                return new System.Drawing.Bitmap(outStream);
+            }
         }
     }
 }
