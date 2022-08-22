@@ -1,9 +1,6 @@
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using Tesseract;
 
 namespace Kikuzuki
@@ -52,7 +49,7 @@ namespace Kikuzuki
             return dst;
         }
 
-        public static string ImageOCR(Bitmap image, bool debug = false)
+        public static string ImageOCR(System.Drawing.Bitmap image, bool debug = false)
         {
             using (TesseractEngine Engine = new TesseractEngine(OCRPath, OCRLang, OCRMode))
             {
@@ -63,7 +60,7 @@ namespace Kikuzuki
 
                     if (debug) new Window("input image", enhanced);
 
-                    using (Bitmap bmp = BitmapConverter.ToBitmap(enhanced))
+                    using (System.Drawing.Bitmap bmp = BitmapConverter.ToBitmap(enhanced))
                     {
                         using (Pix Pix = PixConverter.ToPix(bmp))
                         {
@@ -82,25 +79,25 @@ namespace Kikuzuki
         {
             try
             {
-                using (Image Dummy = Image.FromFile(imagePath))
+                using (System.Drawing.Image Dummy = System.Drawing.Image.FromFile(imagePath))
                 {
-                    return ImageOCR(new Bitmap(Dummy), debug);
+                    return ImageOCR(new System.Drawing.Bitmap(Dummy), debug);
                 }
             }
-            catch (FileNotFoundException e)
+            catch (System.IO.FileNotFoundException e)
             {
-                throw new FileNotFoundException(@"File not found.", e);
+                throw new System.IO.FileNotFoundException(@"File not found.", e);
             }
         }
 
         public struct OCRDetailed
         {
             public string Text;
-            public List<Rectangle> Boxes;
-            public Bitmap BoxedSrc;
+            public System.Collections.Generic.List<System.Drawing.Rectangle> Boxes;
+            public System.Drawing.Bitmap BoxedSrc;
         }
 
-        public static OCRDetailed ImageOCRDetail(Bitmap image, bool debug = false)
+        public static OCRDetailed ImageOCRDetail(System.Drawing.Bitmap image, bool debug = false)
         {
             using (TesseractEngine Engine = new TesseractEngine(OCRPath, OCRLang, OCRMode))
             {
@@ -113,7 +110,7 @@ namespace Kikuzuki
 
                     if (debug) new Window("input image", enhanced);
 
-                    using (Bitmap bmp = BitmapConverter.ToBitmap(enhanced))
+                    using (System.Drawing.Bitmap bmp = BitmapConverter.ToBitmap(enhanced))
                     {
                         using (Pix Pix = PixConverter.ToPix(bmp))
                         {
@@ -130,12 +127,12 @@ namespace Kikuzuki
             }
         }
 
-        private static Bitmap DrawBoundingBox(Bitmap src, List<Rectangle> boxes)
+        private static System.Drawing.Bitmap DrawBoundingBox(System.Drawing.Bitmap src, System.Collections.Generic.List<System.Drawing.Rectangle> boxes)
         {
-            Bitmap dst = new Bitmap(src);
-            using (Graphics graphic = Graphics.FromImage(dst))
+            System.Drawing.Bitmap dst = new System.Drawing.Bitmap(src);
+            using (System.Drawing.Graphics graphic = System.Drawing.Graphics.FromImage(dst))
             {
-                Pen pen = new Pen(Color.Red, 2);
+                System.Drawing.Pen pen = new System.Drawing.Pen(System.Drawing.Color.Red, 2);
                 boxes.ForEach(box =>
                 {
                     graphic.DrawRectangle(pen, box);
