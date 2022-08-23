@@ -9,6 +9,8 @@ namespace KikuzukiWPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        private string OCRlang = "eng";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -26,7 +28,7 @@ namespace KikuzukiWPF
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
                 TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src);
-                textDst.Text = det.Text.Replace("\n", " | ").Replace("\r", " | "); ;
+                textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
             }
         }
@@ -40,9 +42,31 @@ namespace KikuzukiWPF
 
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src);
-                textDst.Text = det.Text.Replace("\n", " | ").Replace("\r", " | "); ;
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, OCRlang);
+                textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
+            }
+        }
+
+        private void ComboBoxSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (((System.Windows.Controls.ComboBoxItem)comboBoxLang.SelectedItem).Content is string content)
+            {
+                switch (content)
+                {
+                    case "English":
+                        OCRlang = "eng";
+                        break;
+                    case "Chinese":
+                        OCRlang = "chi_tra";
+                        break;
+                    case "Japanese":
+                        OCRlang = "jpn";
+                        break;
+                    default:
+                        OCRlang = "eng";
+                        break;
+                }
             }
         }
     }

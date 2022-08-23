@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace Kikuzuki
 {
-    internal class FormatHelper
+    public class FormatHelper
     {
         public static System.Drawing.Bitmap BitmapImage2Bitmap(System.Windows.Media.Imaging.BitmapImage src)
         {

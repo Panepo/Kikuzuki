@@ -5,9 +5,8 @@ using Tesseract;
 
 namespace Kikuzuki
 {
-    internal class TesseractOCR
+    public class TesseractOCR
     {
-        private static readonly string OCRLang = "eng";
         private static readonly string OCRPath = AppDomain.CurrentDomain.BaseDirectory;
         private static readonly EngineMode OCRMode = EngineMode.TesseractAndLstm;
         private static readonly PageIteratorLevel pageIteratorLevel = PageIteratorLevel.TextLine;
@@ -49,7 +48,7 @@ namespace Kikuzuki
             return dst;
         }
 
-        public static string ImageOCR(System.Drawing.Bitmap image, bool debug = false)
+        public static string ImageOCR(System.Drawing.Bitmap image, string OCRLang = "eng", bool debug = false)
         {
             using (TesseractEngine Engine = new TesseractEngine(OCRPath, OCRLang, OCRMode))
             {
@@ -75,13 +74,13 @@ namespace Kikuzuki
             }
         }
 
-        public static string ImageOCR(string imagePath, bool debug = false)
+        public static string ImageOCR(string imagePath, string OCRLang = "eng", bool debug = false)
         {
             try
             {
                 using (System.Drawing.Image Dummy = System.Drawing.Image.FromFile(imagePath))
                 {
-                    return ImageOCR(new System.Drawing.Bitmap(Dummy), debug);
+                    return ImageOCR(new System.Drawing.Bitmap(Dummy), OCRLang, debug);
                 }
             }
             catch (System.IO.FileNotFoundException e)
@@ -97,7 +96,7 @@ namespace Kikuzuki
             public System.Drawing.Bitmap BoxedSrc;
         }
 
-        public static OCRDetailed ImageOCRDetail(System.Drawing.Bitmap image, bool debug = false)
+        public static OCRDetailed ImageOCRDetail(System.Drawing.Bitmap image, string OCRLang = "eng", bool debug = false)
         {
             using (TesseractEngine Engine = new TesseractEngine(OCRPath, OCRLang, OCRMode))
             {
