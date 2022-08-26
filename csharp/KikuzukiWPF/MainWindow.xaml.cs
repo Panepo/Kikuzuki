@@ -10,6 +10,7 @@ namespace KikuzukiWPF
     public partial class MainWindow : Window
     {
         private string OCRlang = "eng";
+        private bool processed = false;
 
         public MainWindow()
         {
@@ -18,8 +19,10 @@ namespace KikuzukiWPF
 
         private void ButtonFileClick(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "Image Files(*.png; *.jpg; *.jpeg; *.gif; *.bmp)|*.png; *.jpg; *.jpeg; *.gif; *.bmp";
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Image Files(*.png; *.jpg; *.jpeg; *.gif; *.bmp)|*.png; *.jpg; *.jpeg; *.gif; *.bmp"
+            };
             Nullable<bool> result = dlg.ShowDialog();
 
             if (result == true)
@@ -30,6 +33,7 @@ namespace KikuzukiWPF
                 TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
+                processed = true;
             }
         }
 
@@ -45,6 +49,27 @@ namespace KikuzukiWPF
                 TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, OCRlang);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
+                processed = true;
+            }
+        }
+
+        private void ButtonSaveClick(object sender, RoutedEventArgs e)
+        {
+            if (processed)
+            {
+                Microsoft.Win32.SaveFileDialog sfd = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "Images|*.png;*.bmp;*.jpg"
+                };
+                Nullable<bool> result = sfd.ShowDialog();
+
+                if (result == true)
+                {
+                    var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                    encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create((System.Windows.Media.Imaging.BitmapSource)imgDst.Source));
+                    using (System.IO.FileStream stream = new System.IO.FileStream(sfd.FileName, System.IO.FileMode.Create))
+                    encoder.Save(stream);
+                }
             }
         }
 
