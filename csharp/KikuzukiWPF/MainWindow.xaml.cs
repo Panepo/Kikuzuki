@@ -1,9 +1,19 @@
-﻿using Kikuzuki;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media.Imaging;
+using Kikuzuki;
 
 namespace KikuzukiWPF
 {
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -11,10 +21,46 @@ namespace KikuzukiWPF
     {
         private string OCRlang = "eng";
         private bool processed = false;
+        private readonly List<TesseractOCR.ImagePR> conf = new List<TesseractOCR.ImagePR>();
 
         public MainWindow()
         {
             InitializeComponent();
+
+            foreach (TesseractOCR.PRListItem item in TesseractOCR.PRListItems)
+            {
+                PRListItems.Items.Add(item);
+
+                if (item.IsSelected)
+                {
+                    conf.Add(item.Enum);
+                }
+            }
+        }
+
+        private void ToggleButtonPRItemClick(object sender, RoutedEventArgs e)
+        {
+            bool isChecked = (bool)(sender as ToggleButton).IsChecked;
+            TesseractOCR.PRListItem menuItem = (TesseractOCR.PRListItem)(sender as FrameworkElement).DataContext;
+
+            foreach (TesseractOCR.PRListItem item in TesseractOCR.PRListItems)
+            {
+                if (menuItem.Name == item.Name)
+                {
+                    if (isChecked) conf.Add(item.Enum);
+                    else conf.Remove(item.Enum);
+
+                    break;
+                }
+            }
+
+            if (processed)
+            {
+                Bitmap src = FormatHelper.ImageSource2Bitmap(imgSrc.Source);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, (bool)checkDebug.IsChecked);
+                textDst.Text = det.Text;
+                imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
+            }
         }
 
         private void ButtonFileClick(object sender, RoutedEventArgs e)
@@ -27,10 +73,10 @@ namespace KikuzukiWPF
 
             if (result == true)
             {
-                System.Drawing.Bitmap src = new System.Drawing.Bitmap(dlg.FileName);
+                Bitmap src = new Bitmap(dlg.FileName);
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, (bool)checkDebug.IsChecked);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
                 processed = true;
@@ -41,12 +87,12 @@ namespace KikuzukiWPF
         {
             if (Clipboard.ContainsImage())
             {
-                System.Windows.Media.Imaging.BitmapSource clip = Clipboard.GetImage();
-                System.Drawing.Bitmap src = FormatHelper.BitmapSource2Bitmap(clip);
+                BitmapSource clip = Clipboard.GetImage();
+                Bitmap src = FormatHelper.BitmapSource2Bitmap(clip);
 
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, OCRlang);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, (bool)checkDebug.IsChecked);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
                 processed = true;
@@ -65,17 +111,17 @@ namespace KikuzukiWPF
 
                 if (result == true)
                 {
-                    var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
-                    encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create((System.Windows.Media.Imaging.BitmapSource)imgDst.Source));
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create((BitmapSource)imgDst.Source));
                     using (System.IO.FileStream stream = new System.IO.FileStream(sfd.FileName, System.IO.FileMode.Create))
-                    encoder.Save(stream);
+                        encoder.Save(stream);
                 }
             }
         }
 
-        private void ComboBoxSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (((System.Windows.Controls.ComboBoxItem)comboBoxLang.SelectedItem).Content is string content)
+            if (((ComboBoxItem)comboBoxLang.SelectedItem).Content is string content)
             {
                 switch (content)
                 {
@@ -87,6 +133,9 @@ namespace KikuzukiWPF
                         break;
                     case "Japanese":
                         OCRlang = "jpn";
+                        break;
+                    case "Korean":
+                        OCRlang = "kor";
                         break;
                     default:
                         OCRlang = "eng";

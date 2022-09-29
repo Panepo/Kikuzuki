@@ -117,8 +117,20 @@
     <Compile Include="..\Common\Format.Helper.cs">
       <Link>Format.Helper.cs</Link>
     </Compile>
-    <Compile Include="..\Common\Tesseract.cs">
-      <Link>Tesseract.cs</Link>
+    <Compile Include="..\Common\TesseractCore.cs">
+      <Link>TesseractCore.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\TesseractOCR.cs">
+      <Link>TesseractOCR.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\TesseractPR.cs">
+      <Link>TesseractPR.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\TesseractPRData.cs">
+      <Link>TesseractPRData.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\TesseractUtils.cs">
+      <Link>TesseractUtils.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -157,6 +169,10 @@
     </None>
     <None Include="..\tessdata\jpn.traineddata">
       <Link>jpn.traineddata</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\tessdata\kor.traineddata">
+      <Link>kor.traineddata</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
