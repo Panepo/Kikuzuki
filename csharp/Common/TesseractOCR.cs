@@ -10,16 +10,23 @@ namespace Kikuzuki
         {
             public string Text;
             public List<Rectangle> Boxes;
-            public Bitmap BoxedSrc;
+            public Bitmap ProcessedSrc;
         }
 
-        public static string ImageOCR(string imagePath, List<ImagePR> conf, string OCRLang = "eng", bool debug = false)
+        public enum OCROutput
+        {
+            IMAGE_BOXED,
+            IMAGE_PROCESSED,
+            IMAGE_REPLACED
+        }
+
+        public static string ImageOCR(string imagePath, List<ImagePR> conf, string OCRLang = "eng")
         {
             try
             {
                 using (Image Dummy = Image.FromFile(imagePath))
                 {
-                    return ImageOCR(new Bitmap(Dummy), conf, OCRLang, debug);
+                    return ImageOCR(new Bitmap(Dummy), conf, OCRLang);
                 }
             }
             catch (FileNotFoundException e)
@@ -28,13 +35,13 @@ namespace Kikuzuki
             }
         }
 
-        public static OCRDetailed ImageOCRDetail(string imagePath, List<ImagePR> conf, string OCRLang = "eng", bool debug = false)
+        public static OCRDetailed ImageOCRDetail(string imagePath, List<ImagePR> conf, string OCRLang = "eng", OCROutput outConf = OCROutput.IMAGE_BOXED)
         {
             try
             {
                 using (Image Dummy = Image.FromFile(imagePath))
                 {
-                    return ImageOCRDetail(new Bitmap(Dummy), conf, OCRLang, debug);
+                    return ImageOCRDetail(new Bitmap(Dummy), conf, OCRLang, outConf);
                 }
             }
             catch (FileNotFoundException e)

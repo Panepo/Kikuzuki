@@ -78,9 +78,17 @@
                         <ComboBoxItem>Japanese</ComboBoxItem>
                         <ComboBoxItem>Korean</ComboBoxItem>
                     </ComboBox>
-                    <CheckBox x:Name="checkDebug" Margin="5,5,5,5">
-                        <TextBlock>Debug</TextBlock>
-                    </CheckBox>
+                    <ComboBox
+                        x:Name="comboBoxOutput"
+                        Height="42"
+                        Margin="5"
+                        materialDesign:HintAssist.Hint="Output Mode"
+                        SelectionChanged="ComboBoxOutSelectionChanged"
+                        Style="{StaticResource MaterialDesignFloatingHintComboBox}">
+                        <ComboBoxItem IsSelected="True">Boxed</ComboBoxItem>
+                        <ComboBoxItem>Processed</ComboBoxItem>
+                        <ComboBoxItem>Replaced</ComboBoxItem>
+                    </ComboBox>
                     <Button
                         Height="42"
                         Margin="5"

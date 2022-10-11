@@ -35,8 +35,13 @@ namespace Kikuzuki
         {
             if (src.Width <= 300 || src.Height <= 300)
             {
+                float scale;
+
+                if (src.Width > src.Height) scale = 300 / src.Height;
+                else scale = 300 / src.Width;
+                
                 Mat dst = new Mat();
-                OpenCvSharp.Size size = new OpenCvSharp.Size(src.Width * 2, src.Height * 2);
+                Size size = new Size((int)(src.Width * scale), (int)(src.Height * scale));
                 Cv2.Resize(src, dst, size, 0, 0, InterpolationFlags.Cubic);
                 return dst;
             }

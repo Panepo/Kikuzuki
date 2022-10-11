@@ -22,6 +22,7 @@ namespace KikuzukiWPF
         private string OCRlang = "eng";
         private bool processed = false;
         private readonly List<TesseractOCR.ImagePR> conf = new List<TesseractOCR.ImagePR>();
+        private TesseractOCR.OCROutput outConf = TesseractOCR.OCROutput.IMAGE_BOXED;
 
         public MainWindow()
         {
@@ -57,9 +58,9 @@ namespace KikuzukiWPF
             if (processed)
             {
                 Bitmap src = FormatHelper.ImageSource2Bitmap(imgSrc.Source);
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, (bool)checkDebug.IsChecked);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, outConf);
                 textDst.Text = det.Text;
-                imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
+                imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
             }
         }
 
@@ -76,9 +77,9 @@ namespace KikuzukiWPF
                 Bitmap src = new Bitmap(dlg.FileName);
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, (bool)checkDebug.IsChecked);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, outConf);
                 textDst.Text = det.Text;
-                imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
+                imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
                 processed = true;
             }
         }
@@ -92,9 +93,9 @@ namespace KikuzukiWPF
 
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, (bool)checkDebug.IsChecked);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, outConf);
                 textDst.Text = det.Text;
-                imgDst.Source = FormatHelper.Bitmap2ImageSource(det.BoxedSrc);
+                imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
                 processed = true;
             }
         }
@@ -139,6 +140,28 @@ namespace KikuzukiWPF
                         break;
                     default:
                         OCRlang = "eng";
+                        break;
+                }
+            }
+        }
+
+        private void ComboBoxOutSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (((ComboBoxItem)comboBoxOutput.SelectedItem).Content is string content)
+            {
+                switch (content)
+                {
+                    case "Boxed":
+                        outConf = TesseractOCR.OCROutput.IMAGE_BOXED;
+                        break;
+                    case "Processed":
+                        outConf = TesseractOCR.OCROutput.IMAGE_PROCESSED;
+                        break;
+                    case "Replaced":
+                        outConf = TesseractOCR.OCROutput.IMAGE_REPLACED;
+                        break;
+                    default:
+                        outConf = TesseractOCR.OCROutput.IMAGE_BOXED;
                         break;
                 }
             }
