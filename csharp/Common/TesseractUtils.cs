@@ -2,6 +2,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Kikuzuki
 {
@@ -22,18 +26,38 @@ namespace Kikuzuki
             }
         }
 
-        private static Bitmap ReplaceBoundingBox(Bitmap src, List<Rectangle> boxes, string[] texts)
+        private static Bitmap ReplaceRectangle(Bitmap src, List<Rectangle> boxes, string[] texts)
         {
             Bitmap dst = new Bitmap(src);
             using (Graphics graphic = Graphics.FromImage(dst))
             {
                 boxes.ForEach(box =>
                 {
-                    SolidBrush brush = new SolidBrush(src.GetPixel(box.X + 2, box.Y + 2));
+                    SolidBrush brush = new SolidBrush(src.GetPixel(box.X, box.Y));
                     graphic.FillRectangle(brush, box);
 
                     int index = boxes.FindIndex(a => a.Contains(box));
                     graphic.DrawString(texts[index], new Font("Tahoma", 16), Brushes.Black, box);
+                });
+
+                return dst;
+            }
+        }
+
+        private static Bitmap TranslateRectangle(Bitmap src, List<Rectangle> boxes, string[] texts, Func<string, Task<string>> translator)
+        {
+            Bitmap dst = new Bitmap(src);
+            using (Graphics graphic = Graphics.FromImage(dst))
+            {
+                boxes.ForEach(box =>
+                {
+                    SolidBrush brush = new SolidBrush(src.GetPixel(box.X, box.Y));
+                    graphic.FillRectangle(brush, box);
+
+                    int index = boxes.FindIndex(a => a.Contains(box));
+                    string trans = "";
+                    Task.Run(async () => { trans = await translator(texts[index]); }).Wait();
+                    graphic.DrawString(trans, new Font("Tahoma", 16), Brushes.Black, box);
                 });
 
                 return dst;

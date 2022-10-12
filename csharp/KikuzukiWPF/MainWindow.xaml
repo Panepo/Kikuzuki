@@ -88,6 +88,7 @@
                         <ComboBoxItem IsSelected="True">Boxed</ComboBoxItem>
                         <ComboBoxItem>Processed</ComboBoxItem>
                         <ComboBoxItem>Replaced</ComboBoxItem>
+                        <ComboBoxItem>Translated</ComboBoxItem>
                     </ComboBox>
                     <Button
                         Height="42"
@@ -107,6 +108,23 @@
                         Click="ButtonSaveClick">
                         <TextBlock Foreground="#DDFFFFFF">Save Processed Image</TextBlock>
                     </Button>
+
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Vertical">
+                    <Grid Height="600">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <Image
+                            x:Name="imgSrc"
+                            Grid.Column="0"
+                            Margin="5" />
+                        <Image
+                            x:Name="imgDst"
+                            Grid.Column="1"
+                            Margin="5" />
+                    </Grid>
                     <TextBox
                         x:Name="textDst"
                         Height="150"
@@ -114,20 +132,6 @@
                         materialDesign:HintAssist.Hint="Recognition Result"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
                 </StackPanel>
-                <Grid Grid.Column="1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="2*" />
-                    </Grid.ColumnDefinitions>
-                    <Image
-                        x:Name="imgSrc"
-                        Grid.Column="0"
-                        Margin="5" />
-                    <Image
-                        x:Name="imgDst"
-                        Grid.Column="1"
-                        Margin="5" />
-                </Grid>
             </Grid>
         </materialDesign:Card>
     </Grid>

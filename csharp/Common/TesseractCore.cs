@@ -3,6 +3,7 @@ using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using Tesseract;
 
 namespace Kikuzuki
@@ -37,7 +38,7 @@ namespace Kikuzuki
             }
         }
 
-        public static OCRDetailed ImageOCRDetail(Bitmap image, List<ImagePR> conf, string OCRLang = "eng", OCROutput outConf = OCROutput.IMAGE_BOXED)
+        public static OCRDetailed ImageOCRDetail(Bitmap image, List<ImagePR> conf, Func<string, Task<string>> translator, string OCRLang = "eng", OCROutput outConf = OCROutput.IMAGE_BOXED)
         {
             using (TesseractEngine Engine = new TesseractEngine(OCRPath, OCRLang, OCRMode))
             {
@@ -54,6 +55,8 @@ namespace Kikuzuki
                         {
                             output.Text = page.GetText();
                             output.Boxes = page.GetSegmentedRegions(pageIteratorLevel);
+
+                            string[] texts = output.Text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
 
                             switch (outConf)
                             {
@@ -77,8 +80,6 @@ namespace Kikuzuki
                                     output.ProcessedSrc = DrawBoundingBox(bmp, output.Boxes);
                                     break;
                                 case OCROutput.IMAGE_REPLACED:
-                                    string[] texts = output.Text.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-
                                     if (conf.Contains(ImagePR.IMAGE_RESIZE))
                                     {
                                         if (image.Width <= 300 || image.Height <= 300)
@@ -88,11 +89,27 @@ namespace Kikuzuki
                                             if (image.Width > image.Height) scale = 300 / image.Height;
                                             else scale = 300 / image.Width;
 
-                                            output.ProcessedSrc = ReplaceBoundingBox(ResizeImage(image, (int)(image.Width * scale), (int)(image.Height * scale)), output.Boxes, texts);
+                                            output.ProcessedSrc = ReplaceRectangle(ResizeImage(image, (int)(image.Width * scale), (int)(image.Height * scale)), output.Boxes, texts);
                                         }
-                                        else output.ProcessedSrc = ReplaceBoundingBox(image, output.Boxes, texts);
+                                        else output.ProcessedSrc = ReplaceRectangle(image, output.Boxes, texts);
                                     }
-                                    else output.ProcessedSrc = ReplaceBoundingBox(image, output.Boxes, texts);
+                                    else output.ProcessedSrc = ReplaceRectangle(image, output.Boxes, texts);
+                                    break;
+                                case OCROutput.IMAGE_TRANSLATED:
+                                    if (conf.Contains(ImagePR.IMAGE_RESIZE))
+                                    {
+                                        if (image.Width <= 300 || image.Height <= 300)
+                                        {
+                                            float scale;
+
+                                            if (image.Width > image.Height) scale = 300 / image.Height;
+                                            else scale = 300 / image.Width;
+
+                                            output.ProcessedSrc = TranslateRectangle(ResizeImage(image, (int)(image.Width * scale), (int)(image.Height * scale)), output.Boxes, texts, translator);
+                                        }
+                                        else output.ProcessedSrc = TranslateRectangle(image, output.Boxes, texts, translator);
+                                    }
+                                    else output.ProcessedSrc = TranslateRectangle(image, output.Boxes, texts, translator);
                                     break;
                             }
                             

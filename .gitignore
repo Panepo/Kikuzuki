@@ -380,3 +380,4 @@ archieve/
 config
 dependencies
 license.*
+Secret.cs

@@ -58,7 +58,7 @@ namespace KikuzukiWPF
             if (processed)
             {
                 Bitmap src = FormatHelper.ImageSource2Bitmap(imgSrc.Source);
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, outConf);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, outConf);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
             }
@@ -77,7 +77,7 @@ namespace KikuzukiWPF
                 Bitmap src = new Bitmap(dlg.FileName);
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, outConf);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, outConf);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
                 processed = true;
@@ -93,7 +93,7 @@ namespace KikuzukiWPF
 
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, OCRlang, outConf);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, outConf);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
                 processed = true;
@@ -159,6 +159,9 @@ namespace KikuzukiWPF
                         break;
                     case "Replaced":
                         outConf = TesseractOCR.OCROutput.IMAGE_REPLACED;
+                        break;
+                    case "Translated":
+                        outConf = TesseractOCR.OCROutput.IMAGE_TRANSLATED;
                         break;
                     default:
                         outConf = TesseractOCR.OCROutput.IMAGE_BOXED;
