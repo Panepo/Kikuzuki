@@ -129,6 +129,9 @@
     <Compile Include="..\Common\TesseractCore.cs">
       <Link>TesseractCore.cs</Link>
     </Compile>
+    <Compile Include="..\Common\TesseractData.cs">
+      <Link>TesseractData.cs</Link>
+    </Compile>
     <Compile Include="..\Common\TesseractOCR.cs">
       <Link>TesseractOCR.cs</Link>
     </Compile>

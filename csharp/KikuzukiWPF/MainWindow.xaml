@@ -72,24 +72,22 @@
                         Margin="5"
                         materialDesign:HintAssist.Hint="Language"
                         SelectionChanged="ComboBoxSelectionChanged"
-                        Style="{StaticResource MaterialDesignFloatingHintComboBox}">
-                        <ComboBoxItem IsSelected="True">English</ComboBoxItem>
-                        <ComboBoxItem>Chinese</ComboBoxItem>
-                        <ComboBoxItem>Japanese</ComboBoxItem>
-                        <ComboBoxItem>Korean</ComboBoxItem>
-                    </ComboBox>
+                        Style="{StaticResource MaterialDesignFloatingHintComboBox}" />
                     <ComboBox
                         x:Name="comboBoxOutput"
                         Height="42"
                         Margin="5"
                         materialDesign:HintAssist.Hint="Output Mode"
                         SelectionChanged="ComboBoxOutSelectionChanged"
-                        Style="{StaticResource MaterialDesignFloatingHintComboBox}">
-                        <ComboBoxItem IsSelected="True">Boxed</ComboBoxItem>
-                        <ComboBoxItem>Processed</ComboBoxItem>
-                        <ComboBoxItem>Replaced</ComboBoxItem>
-                        <ComboBoxItem>Translated</ComboBoxItem>
-                    </ComboBox>
+                        Style="{StaticResource MaterialDesignFloatingHintComboBox}" />
+                    <ComboBox
+                        x:Name="comboBoxTrans"
+                        Height="42"
+                        Margin="5"
+                        materialDesign:HintAssist.Hint="Translated Language"
+                        IsEnabled="False"
+                        SelectionChanged="ComboBoxTransSelectionChanged"
+                        Style="{StaticResource MaterialDesignFloatingHintComboBox}" />
                     <Button
                         Height="42"
                         Margin="5"

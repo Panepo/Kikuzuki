@@ -4,8 +4,6 @@ using System.Drawing.Imaging;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 namespace Kikuzuki
 {
@@ -44,7 +42,7 @@ namespace Kikuzuki
             }
         }
 
-        private static Bitmap TranslateRectangle(Bitmap src, List<Rectangle> boxes, string[] texts, Func<string, Task<string>> translator)
+        private static Bitmap TranslateRectangle(Bitmap src, List<Rectangle> boxes, string[] texts, string from, string to, Func<string, string, string, Task<string>> translator)
         {
             Bitmap dst = new Bitmap(src);
             using (Graphics graphic = Graphics.FromImage(dst))
@@ -56,7 +54,7 @@ namespace Kikuzuki
 
                     int index = boxes.FindIndex(a => a.Contains(box));
                     string trans = "";
-                    Task.Run(async () => { trans = await translator(texts[index]); }).Wait();
+                    Task.Run(async () => { trans = await translator(texts[index], from, to); }).Wait();
                     graphic.DrawString(trans, new Font("Tahoma", 16), Brushes.Black, box);
                 });
 

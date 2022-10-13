@@ -9,6 +9,49 @@ namespace Kikuzuki
 {
     class AzureTranslator
     {
+        public class LangData
+        {
+            public string Name { get; set; }
+            public string Code { get; set; }
+        }
+
+        public static List<LangData> LangDatas = new List<LangData>()
+        {
+            new LangData
+            {
+                Name = "English",
+                Code = "en"
+            },
+            new LangData
+            {
+                Name = "Chinese Traditional",
+                Code = "zh-Hant"
+            },
+            new LangData
+            {
+                Name = "French",
+                Code = "fr"
+            },
+            new LangData
+            {
+                Name = "German",
+                Code = "de"
+            },
+        };
+
+        private static string CheckLang(string name)
+        {
+            foreach (LangData lang in LangDatas)
+            {
+                if (lang.Name == name)
+                {
+                    return lang.Code;
+                }
+            }
+
+            return "en";
+        }
+        
         public class TransResult
         {
             public List<TransRes> Translations { get; set; }
@@ -20,9 +63,12 @@ namespace Kikuzuki
             public string To { get; set; }
         }
 
-        public static async Task<string> Translate(string input)
+        public static async Task<string> Translate(string input, string from = "English", string to = "Chinese Traditional")
         {
-            string route = "/translate?api-version=3.0&from=en&to=zh-tw";
+            string Tfrom = CheckLang(from);
+            string Tto = CheckLang(to);
+
+            string route = "/translate?api-version=3.0&from=" + Tfrom + "&to=" + Tto;
             object[] body = new object[] { new { Text = input } };
             var requestBody = JsonConvert.SerializeObject(body);
 

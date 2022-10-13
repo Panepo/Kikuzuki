@@ -19,10 +19,11 @@ namespace KikuzukiWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string OCRlang = "eng";
+        private string OCRlang = "English";
+        private string TransLang = "Chinese Traditional";
         private bool processed = false;
         private readonly List<TesseractOCR.ImagePR> conf = new List<TesseractOCR.ImagePR>();
-        private TesseractOCR.OCROutput outConf = TesseractOCR.OCROutput.IMAGE_BOXED;
+        private TesseractOCR.ProcessedType outConf = TesseractOCR.ProcessedType.IMAGE_BOXED;
 
         public MainWindow()
         {
@@ -35,6 +36,45 @@ namespace KikuzukiWPF
                 if (item.IsSelected)
                 {
                     conf.Add(item.Enum);
+                }
+            }
+
+            foreach(TesseractOCR.LangData lang in TesseractOCR.LangDatas)
+            {
+                comboBoxLang.Items.Add(lang.Name);
+            }
+            foreach (string item in comboBoxLang.Items)
+            {
+                if (item == "English")
+                {
+                    comboBoxLang.SelectedValue = item;
+                    break;
+                }
+            }
+
+            foreach (TesseractOCR.ProcessedList process in TesseractOCR.ProcessedLists)
+            {
+                comboBoxOutput.Items.Add(process.Name);
+            }
+            foreach (string item in comboBoxOutput.Items)
+            {
+                if (item == "Boxed")
+                {
+                    comboBoxOutput.SelectedValue = item;
+                    break;
+                }
+            }
+
+            foreach (AzureTranslator.LangData lang in AzureTranslator.LangDatas)
+            {
+                comboBoxTrans.Items.Add(lang.Name);
+            }
+            foreach (string item in comboBoxTrans.Items)
+            {
+                if (item == "Chinese Traditional")
+                {
+                    comboBoxTrans.SelectedValue = item;
+                    break;
                 }
             }
         }
@@ -58,7 +98,7 @@ namespace KikuzukiWPF
             if (processed)
             {
                 Bitmap src = FormatHelper.ImageSource2Bitmap(imgSrc.Source);
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, outConf);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, TransLang, outConf);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
             }
@@ -77,7 +117,7 @@ namespace KikuzukiWPF
                 Bitmap src = new Bitmap(dlg.FileName);
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, outConf);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, TransLang, outConf);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
                 processed = true;
@@ -93,7 +133,7 @@ namespace KikuzukiWPF
 
                 imgSrc.Source = FormatHelper.Bitmap2ImageSource(src);
 
-                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, outConf);
+                TesseractOCR.OCRDetailed det = TesseractOCR.ImageOCRDetail(src, conf, AzureTranslator.Translate, OCRlang, TransLang, outConf);
                 textDst.Text = det.Text;
                 imgDst.Source = FormatHelper.Bitmap2ImageSource(det.ProcessedSrc);
                 processed = true;
@@ -122,51 +162,35 @@ namespace KikuzukiWPF
 
         private void ComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (((ComboBoxItem)comboBoxLang.SelectedItem).Content is string content)
+            if (comboBoxLang.SelectedItem is string content)
             {
-                switch (content)
-                {
-                    case "English":
-                        OCRlang = "eng";
-                        break;
-                    case "Chinese":
-                        OCRlang = "chi_tra";
-                        break;
-                    case "Japanese":
-                        OCRlang = "jpn";
-                        break;
-                    case "Korean":
-                        OCRlang = "kor";
-                        break;
-                    default:
-                        OCRlang = "eng";
-                        break;
-                }
+                OCRlang = content;
             }
         }
 
         private void ComboBoxOutSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (((ComboBoxItem)comboBoxOutput.SelectedItem).Content is string content)
+            if (comboBoxOutput.SelectedItem is string content)
             {
-                switch (content)
+                foreach (TesseractOCR.ProcessedList process in TesseractOCR.ProcessedLists)
                 {
-                    case "Boxed":
-                        outConf = TesseractOCR.OCROutput.IMAGE_BOXED;
+                    if (content == process.Name)
+                    {
+                        outConf = process.Code;
+
+                        if (content == "Text Translated") comboBoxTrans.IsEnabled = true;
+                        else comboBoxTrans.IsEnabled = false;
                         break;
-                    case "Processed":
-                        outConf = TesseractOCR.OCROutput.IMAGE_PROCESSED;
-                        break;
-                    case "Replaced":
-                        outConf = TesseractOCR.OCROutput.IMAGE_REPLACED;
-                        break;
-                    case "Translated":
-                        outConf = TesseractOCR.OCROutput.IMAGE_TRANSLATED;
-                        break;
-                    default:
-                        outConf = TesseractOCR.OCROutput.IMAGE_BOXED;
-                        break;
+                    }
                 }
+            }
+        }
+
+        private void ComboBoxTransSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (comboBoxTrans.SelectedItem is string content)
+            {
+                TransLang = content;
             }
         }
     }

@@ -8,28 +8,13 @@ namespace Kikuzuki
 {
     partial class TesseractOCR
     {
-        public struct OCRDetailed
-        {
-            public string Text;
-            public List<Rectangle> Boxes;
-            public Bitmap ProcessedSrc;
-        }
-
-        public enum OCROutput
-        {
-            IMAGE_BOXED,
-            IMAGE_PROCESSED,
-            IMAGE_REPLACED,
-            IMAGE_TRANSLATED
-        }
-
-        public static string ImageOCR(string imagePath, List<ImagePR> conf, string OCRLang = "eng")
+        public static string ImageOCR(string imagePath, List<ImagePR> conf, string from = "English")
         {
             try
             {
                 using (Image Dummy = Image.FromFile(imagePath))
                 {
-                    return ImageOCR(new Bitmap(Dummy), conf, OCRLang);
+                    return ImageOCR(new Bitmap(Dummy), conf, from);
                 }
             }
             catch (FileNotFoundException e)
@@ -38,13 +23,13 @@ namespace Kikuzuki
             }
         }
 
-        public static OCRDetailed ImageOCRDetail(string imagePath, List<ImagePR> conf, Func<string, Task<string>> translator, string OCRLang = "eng", OCROutput outConf = OCROutput.IMAGE_BOXED)
+        public static OCRDetailed ImageOCRDetail(string imagePath, List<ImagePR> conf, Func<string, string, string, Task<string>> translator, string from = "English", string to = "Chinese Traditional", ProcessedType outConf = ProcessedType.IMAGE_BOXED)
         {
             try
             {
                 using (Image Dummy = Image.FromFile(imagePath))
                 {
-                    return ImageOCRDetail(new Bitmap(Dummy), conf, translator, OCRLang, outConf);
+                    return ImageOCRDetail(new Bitmap(Dummy), conf, translator, from, to, outConf);
                 }
             }
             catch (FileNotFoundException e)
