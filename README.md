@@ -2,7 +2,7 @@
 
 Csharp implementation of Tesseract optical character recognition with pre-recongizing image processing and translation.
 
-<img src="https://github.com/Panepo/Kikuzuki/blob/master/doc/usage1.png" alt="usage1" height="167" width="300"> <img src="https://github.com/Panepo/Kikuzuki/blob/master/src/doc/usage2.jpg" alt="usage2" height="167" width="300">
+<img src="https://github.com/Panepo/Kikuzuki/blob/master/doc/usage1.png" alt="usage1" height="418" width="750"> <img src="https://github.com/Panepo/Kikuzuki/blob/master/doc/usage2.jpg" alt="usage2" height="418" width="750">
 
 ## Requirements
 
