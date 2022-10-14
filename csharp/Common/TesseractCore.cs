@@ -3,6 +3,7 @@ using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tesseract;
 
@@ -57,7 +58,7 @@ namespace Kikuzuki
                     {
                         using (var page = Engine.Process(Pix))
                         {
-                            output.Text = page.GetText();
+                            output.Text = Regex.Replace(page.GetText(), @"^\s+$[\r\n]*", string.Empty, RegexOptions.Multiline);
                             output.Boxes = page.GetSegmentedRegions(pageIteratorLevel);
 
                             string[] texts = output.Text.Replace("\n\n", "\n").Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
