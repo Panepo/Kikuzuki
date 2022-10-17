@@ -58,6 +58,16 @@ namespace Kikuzuki
             return dst;
         }
 
+        private static Mat ImageBinarizationInverse(Mat src)
+        {
+            Mat gray = new Mat();
+            Mat dst = new Mat();
+
+            Cv2.CvtColor(src, gray, ColorConversionCodes.BGR2GRAY);
+            Cv2.Threshold(gray, dst, 0, 255, ThresholdTypes.BinaryInv | ThresholdTypes.Otsu);
+            return dst;
+        }
+
         private static Mat ImageDenoise(Mat src)
         {
             Mat dst = new Mat();

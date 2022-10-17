@@ -1,8 +1,6 @@
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
-using OpenCvSharp;
-using OpenCvSharp.Extensions;
-using OpenCvSharp.XPhoto;
 
 namespace Kikuzuki
 {
@@ -13,6 +11,7 @@ namespace Kikuzuki
             IMAGE_RESIZE,
             IMAGE_ROTATE,
             IMAGE_BINARIZATION,
+            IMAGE_BINARIZATION_INVERSE,
             IMAGE_DENOISE,
             IMAGE_DEBLUR,
             IMAGE_SMOOTH,
@@ -22,48 +21,12 @@ namespace Kikuzuki
 
         public class PRListItem
         {
-            private bool _isSelected;
-            private string _name;
-            private string _description;
-            private char _code;
-            private ImagePR _enum;
-            private Func<Mat, Mat> _func;
-
-            public bool IsSelected
-            {
-                get => _isSelected;
-                set => _isSelected = value;
-            }
-
-            public char Code
-            {
-                get => _code;
-                set => _code = value;
-            }
-
-            public string Name
-            {
-                get => _name;
-                set => _name = value;
-            }
-
-            public string Description
-            {
-                get => _description;
-                set => _description = value;
-            }
-
-            public ImagePR Enum
-            {
-                get => _enum;
-                set => _enum = value;
-            }
-
-            public Func<Mat, Mat> Func
-            {
-                get => _func;
-                set => _func = value;
-            }
+            public bool IsSelected { get; set; }
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public char Code { get; set; }
+            public ImagePR Enum { get; set; }
+            public Func<Mat, Mat> Func { get; set; }
         }
 
         public static List<PRListItem> PRListItems = new List<PRListItem>()
@@ -88,12 +51,20 @@ namespace Kikuzuki
             },
             new PRListItem
             {
+                Code = 'I',
+                Name = "Inverse",
+                Description = "Turn the image to black and white and inverse it",
+                Enum = ImagePR.IMAGE_BINARIZATION_INVERSE,
+                Func = ImageBinarizationInverse
+            },
+            /* new PRListItem
+            {
                 Code = 'N',
                 Name = "Denoise",
                 Description = "Remove noise from image",
                 Enum = ImagePR.IMAGE_DENOISE,
                 Func = ImageDenoise
-            },
+            }, */
             new PRListItem
             {
                 Code = 'D',
@@ -107,6 +78,7 @@ namespace Kikuzuki
                 Code = 'S',
                 Name = "Smooth",
                 Description = "Smooth the image",
+                IsSelected = true,
                 Enum = ImagePR.IMAGE_SMOOTH,
                 Func = ImageSmooth
             },
@@ -118,14 +90,14 @@ namespace Kikuzuki
                 Enum = ImagePR.IMAGE_WHITEBALANCE,
                 Func = ImageWhiteBalance
             },
-            new PRListItem
+            /*new PRListItem
             {
                 Code = 'T',
                 Name = "Thinnging",
                 Description = "Thinnging the image",
                 Enum = ImagePR.IMAGE_THINNING,
                 Func = ImageThinning
-            }
+            }*/
         };
     }
 }
