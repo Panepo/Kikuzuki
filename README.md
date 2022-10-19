@@ -8,10 +8,10 @@ Csharp implementation of Tesseract optical character recognition with pre-recong
 
 * .NET Framework 4.6.1 runtime
 
-## Library used
+## Reference
 
 * [Tesseract](https://github.com/tesseract-ocr/tesseract)
-* [Tesseract](https://github.com/charlesw/tesseract)
+* [Tesseract CSharp wrapper](https://github.com/charlesw/tesseract)
 * [OpenCVSharp](https://github.com/shimat/opencvsharp)
 * [PRLib](https://github.com/leha-bot/PRLib)
 * [Azure Cognitive Translator](https://azure.microsoft.com/en-us/products/cognitive-services/translator/)
