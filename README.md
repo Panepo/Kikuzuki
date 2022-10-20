@@ -1,6 +1,6 @@
 # Kikuzuki
 
-Csharp implementation of Tesseract optical character recognition with pre-recongizing image processing and translation.
+C# implementation of Tesseract optical character recognition with pre-recongizing image processing and translation.
 
 <img src="https://github.com/Panepo/Kikuzuki/blob/master/doc/usage1.png" alt="usage1" height="418" width="750"> <img src="https://github.com/Panepo/Kikuzuki/blob/master/doc/usage2.png" alt="usage2" height="418" width="750">
 
@@ -20,6 +20,23 @@ Csharp implementation of Tesseract optical character recognition with pre-recong
 
 ### Development Requirements
 * Visual Studio 2022
+* Azure account (For Azure translator)
+
+### Azure Translator Cofiguration
+* Create an Azure subscription and translator resource. [Link](https://learn.microsoft.com/en-us/azure/cognitive-services/translator/quickstart-translator?tabs=csharp)
+* Create `Secret.cs` into `csharp\Common` folder
+* Fill `Secret.cs` with these following
+```
+namespace Kikuzuki
+{
+    class TranslatorConfig
+    {
+        public static readonly string TranslatorKey = <Your Translator Key>;
+        public static readonly string TranslatorRegion = <Your Translator Region>;
+        public static readonly string TranslatorEndpoint = "https://api.cognitive.microsofttranslator.com/";
+    }
+}
+```
 
 ## Author
 
