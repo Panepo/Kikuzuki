@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using OpenCvSharp;
 using System;
 using Windows.Graphics;
+using Windows.Graphics.Imaging;
 using static Kikuzuki.CameraEnumerator;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -107,6 +108,7 @@ namespace KikuzukiWinUI
                     _isStreaming = false;
                     _isCaptured = true;
                     ButtonCameraText.Text = "Camera Restart";
+                    ButtonRecognize.IsEnabled = true;
 
                     _capturedFrame = _frame.Clone();
                     ImageSource bmp = _frame.ToWriteableBitmap();
@@ -123,18 +125,23 @@ namespace KikuzukiWinUI
             }
         }
 
-        private void ButtonRecognizeClick(object sender, RoutedEventArgs e)
+        private async void ButtonRecognizeClick(object sender, RoutedEventArgs e)
         {
+            if (_imgDescClient == null) throw new Exception("Image Description Client not initialized.");
+
+            if (_capturedFrame == null) throw new Exception("No captured frame available.");
+
             if (_isRecognizing)
             {
                 _isRecognizing = false;
                 ButtonRecognizeText.Text = "Recognize";
-                _imgDescClient?.StopDescribing();
+                _imgDescClient.StopDescribing();
             }
             else
             {
                 _isRecognizing = true;
                 ButtonRecognizeText.Text = "Recognizing...";
+                await _imgDescClient.DescribeImage(_capturedFrame.ToSoftwareBitmap());
             }
         }
     }

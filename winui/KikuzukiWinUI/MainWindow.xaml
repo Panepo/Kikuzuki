@@ -28,7 +28,7 @@
                 <Button x:Name="ButtonCamera" Click="ButtonCameraClick" Width="185" Height="35" Margin="5" HorizontalAlignment="Left">
                     <TextBlock x:Name="ButtonCameraText">Camera</TextBlock>
                 </Button>
-                <Button x:Name="ButtonRecognize" Click="ButtonRecognizeClick" Width="185" Height="35" Margin="5" HorizontalAlignment="Left">
+                <Button x:Name="ButtonRecognize" Click="ButtonRecognizeClick" Width="185" Height="35" Margin="5" HorizontalAlignment="Left" IsEnabled="False">
                     <TextBlock x:Name="ButtonRecognizeText">Recognize</TextBlock>
                 </Button>
             </StackPanel>
