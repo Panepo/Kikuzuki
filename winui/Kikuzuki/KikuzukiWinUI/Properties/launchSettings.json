@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "KikuzukiWinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "KikuzukiWinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
