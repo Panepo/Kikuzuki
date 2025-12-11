@@ -15,7 +15,8 @@ namespace Kikuzuki
         public enum Status
         {
             Generating,
-            End
+            End,
+            Error
         }
 
         public class ProcessEventArgs : EventArgs
@@ -44,7 +45,7 @@ namespace Kikuzuki
             InitImageDescriptor();
         }
 
-        private async void InitImageDescriptor()
+        private static async void InitImageDescriptor()
         {
             var readyState = ImageDescriptionGenerator.GetReadyState();
             if (readyState is AIFeatureReadyState.Ready or AIFeatureReadyState.NotReady)
