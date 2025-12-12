@@ -28,7 +28,6 @@ namespace KikuzukiWinUI
         private Mat _frame = _blackMat;
         private bool _isStreaming = false;
         
-        private bool _isCaptured = false;
         private Mat _capturedFrame = _blackMat;
 
         private ImageDescClient? _imgDescClient;
@@ -36,6 +35,9 @@ namespace KikuzukiWinUI
 
         private TextRecoClient? _textRecoClient;
         private bool _isRecognizingText = false;
+
+        private TextTransClient? _textTransClient;
+        private bool _isTranslatingText = false;
 
         public MainWindow()
         {
@@ -78,6 +80,12 @@ namespace KikuzukiWinUI
             };
 
             _textRecoClient = new TextRecoClient();
+
+            _textTransClient = new TextTransClient();
+            foreach (string lang in _textTransClient.languages)
+            {
+                ComboBoxLang.Items.Add(lang);
+            }
         }
 
         private void ComboBoxCameraChanged(object sender, SelectionChangedEventArgs e)
@@ -92,6 +100,11 @@ namespace KikuzukiWinUI
                     break;
                 }
             }
+        }
+
+        private void ComboBoxLangChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
 
 
@@ -119,9 +132,9 @@ namespace KikuzukiWinUI
 
                     ButtonRecognize.IsEnabled = true;
                     ButtonOCR.IsEnabled = true;
+                    ButtonTrans.IsEnabled = true;
                     TextRecognized.Text = string.Empty;
 
-                    _isCaptured = true;
                     _capturedFrame = _frame.Clone();
                     ImageSource bmp = _frame.ToWriteableBitmap();
                     ImgCamera.Source = bmp;
@@ -135,7 +148,6 @@ namespace KikuzukiWinUI
                 _isStreaming = true;
                 ButtonCameraText.Text = "Capture";
 
-                _isCaptured = false;
                 _capturedFrame = _blackMat;
 
                 _cam = new Camera(_selCamera.deviceID, new EventHandler<object>(ProcessFrame));
@@ -188,10 +200,48 @@ namespace KikuzukiWinUI
 
                 _isRecognizingText = false;
                 ButtonOCRText.Text = "Recognize";
+                TextRecognized.Text = string.Join('\n', texts);
             }
         }
 
-        private async void ButtonClearClick(object sender, RoutedEventArgs e)
+        private async void ButtonTransClick(object sender, RoutedEventArgs e)
+        {
+            if (_textRecoClient == null) throw new Exception("Text Recognition Client not initialized.");
+            if (_textTransClient == null) throw new Exception("Text Translation Client not initialized.");
+            if (_isTranslatingText)
+            {
+                _isTranslatingText = false;
+                ButtonTransText.Text = "Translate";
+            }
+            else
+            {
+                _isTranslatingText = true;
+                ButtonTransText.Text = "Stop";
+
+                RecognizedText recognizedText = await _textRecoClient.RecognizeTextAsync(_capturedFrame.ToSoftwareBitmap());
+                TextRecoClient.RecognizedTextToBoxesAndTexts(recognizedText, out List<System.Drawing.Rectangle> boxes, out string[] texts);
+
+                string targetLanguage = (string)((ComboBoxItem)ComboBoxLang.SelectedItem).Content;
+                var textList = new List<string>();
+                foreach (var text in texts)
+                {
+                    textList.Add(await _textTransClient.TranslateText(text, targetLanguage));
+                }
+                string[] transTexts = [.. textList];
+
+                Bitmap drawnBitmap = ImageUtils.DrawRectangleAndText(
+                    _capturedFrame.ToBitmap(),
+                    boxes,
+                    transTexts);
+                ImgCamera.Source = ImageFormatExtensions.Bitmap2ImageSource(drawnBitmap);
+
+                _isTranslatingText = false;
+                ButtonTransText.Text = "Translate";
+                TextRecognized.Text = string.Join('\n', transTexts);
+            }
+        }
+
+        private void ButtonClearClick(object sender, RoutedEventArgs e)
         {
             ImgCamera.Source = _blackMat.ToWriteableBitmap();
             _capturedFrame = _blackMat;

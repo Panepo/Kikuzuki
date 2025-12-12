@@ -381,3 +381,5 @@ config
 dependencies
 license.*
 Secret.cs
+Package.appxmanifest
+*.pfx
