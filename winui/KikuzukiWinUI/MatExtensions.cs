@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.Windows.AI.Imaging;
 using OpenCvSharp;
 using System;
 using System.Runtime.InteropServices;
@@ -57,5 +58,27 @@ public static class MatExtensions
             bgraMat.Dispose();
 
         return bitmap;
+    }
+
+    public static Mat DrawRecognizedText(this Mat mat, RecognizedText recognizedText)
+    {
+        Mat dst = mat.Clone();
+        foreach (RecognizedLine line in recognizedText.Lines)
+        {
+            // Extract the four points from the bounding box
+            var bbox = line.BoundingBox;
+            var points = new[]
+            {
+                    new OpenCvSharp.Point(bbox.TopLeft.X, bbox.TopLeft.Y),
+                    new OpenCvSharp.Point(bbox.TopRight.X, bbox.TopRight.Y),
+                    new OpenCvSharp.Point(bbox.BottomRight.X, bbox.BottomRight.Y),
+                    new OpenCvSharp.Point(bbox.BottomLeft.X, bbox.BottomLeft.Y)
+                };
+            Cv2.Polylines(dst, new[] { points }, isClosed: true, color: Scalar.Red, thickness: 2);
+            // Draw the recognized text above the bounding box
+            var textPosition = new OpenCvSharp.Point(points[0].X, points[0].Y - 10);
+            Cv2.PutText(dst, line.Text, textPosition, HersheyFonts.HersheySimplex, 0.7, Scalar.Blue, 2);
+        }
+        return dst;
     }
 }

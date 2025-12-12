@@ -118,9 +118,10 @@ namespace KikuzukiWinUI
                 {
                     _isStreaming = false;
                     ButtonCameraText.Text = "Camera Restart";
-                    
+
                     ButtonRecognize.IsEnabled = true;
-                    ButtonRecognizeText.Text = string.Empty;
+                    ButtonOCR.IsEnabled = true;
+                    TextRecognized.Text = string.Empty;
 
                     _isCaptured = true;
                     _capturedFrame = _frame.Clone();
@@ -171,64 +172,21 @@ namespace KikuzukiWinUI
             if (_isRecognizingText)
             {
                 _isRecognizingText = false;
-                ButtonRecognizeText.Text = "Recognize";
+                ButtonOCRText.Text = "Recognize";
             }
             else
             {
                 _isRecognizingText = true;
-                ButtonRecognizeText.Text = "Stop";
+                ButtonOCRText.Text = "Stop";
                 RecognizedText recognizedText = await _textRecoClient.RecognizeTextAsync(_capturedFrame.ToSoftwareBitmap());
 
+                Mat renderedFrame = _capturedFrame.DrawRecognizedText(recognizedText);
+                ImageSource renderedBmp = renderedFrame.ToWriteableBitmap();
+                ImgCamera.Source = renderedBmp;
+
                 _isRecognizingText = false;
-                RenderRecognizedText(recognizedText);
-                ButtonRecognizeText.Text = "Recognize";
+                ButtonOCRText.Text = "Recognize";
             }
-        }
-
-        private void RenderRecognizedText(RecognizedText recognizedText)
-        {
-            List<string> lines = new();
-
-            foreach (var line in recognizedText.Lines)
-            {
-                lines.Add(line.Text);
-
-                SolidColorBrush backgroundBrush = new SolidColorBrush
-                {
-                    Color = Colors.Black,
-                    Opacity = .6
-                };
-
-                Grid grid = new Grid
-                {
-                    Background = backgroundBrush,
-                    CornerRadius = new CornerRadius(8),
-                    Padding = new Thickness(4, 3, 4, 4)
-                };
-
-                try
-                {
-                    var height = Math.Abs((int)line.BoundingBox.TopRight.Y - (int)line.BoundingBox.BottomRight.Y) * .85;
-                    TextBlock block = new TextBlock
-                    {
-                        IsTextSelectionEnabled = true,
-                        Foreground = new SolidColorBrush(Colors.White),
-                        Text = line.Text,
-                        FontSize = height > 0 ? height : 1,
-                    };
-
-                    grid.Children.Add(block);
-                    RectCanvas.Children.Add(grid);
-                    Canvas.SetLeft(grid, line.BoundingBox.TopLeft.X);
-                    Canvas.SetTop(grid, line.BoundingBox.TopLeft.Y);
-                }
-                catch
-                {
-                    continue;
-                }
-            }
-
-            TextRecognized.Text = string.Join('\n', lines);
         }
 
         private async void ButtonClearClick(object sender, RoutedEventArgs e)
