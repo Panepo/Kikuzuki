@@ -36,6 +36,24 @@ namespace Kikuzuki
             Bitmap dst = new Bitmap(src);
             using (Graphics graphic = Graphics.FromImage(dst))
             {
+                Pen pen = new Pen(Color.Red, 2);
+                boxes.ForEach(box =>
+                {
+                    graphic.DrawRectangle(pen, box);
+
+                    int index = boxes.FindIndex(a => a.Contains(box));
+                    graphic.DrawString(texts[index], new Font("Tahoma", 16), Brushes.Black, box);
+                });
+
+                return dst;
+            }
+        }
+
+        public static Bitmap ReplaceRectangleAndText(Bitmap src, List<Rectangle> boxes, string[] texts)
+        {
+            Bitmap dst = new Bitmap(src);
+            using (Graphics graphic = Graphics.FromImage(dst))
+            {
                 boxes.ForEach(box =>
                 {
                     SolidBrush brush = new SolidBrush(src.GetPixel(box.X, box.Y));
@@ -79,15 +97,29 @@ namespace Kikuzuki
     {
         public static ImageSource Bitmap2ImageSource(Bitmap src)
         {
-            using (var stream = new MemoryStream())
-            {
-                src.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                stream.Seek(0, SeekOrigin.Begin);
+            var wb = new WriteableBitmap(src.Width, src.Height);
 
-                var wb = new WriteableBitmap(src.Width, src.Height);
-                stream.CopyTo(wb.PixelBuffer.AsStream());
-                return wb;
+            // Lock the bitmap's bits
+            var rect = new Rectangle(0, 0, src.Width, src.Height);
+            var bmpData = src.LockBits(rect, ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            try
+            {
+                // Copy the pixel data directly
+                using (var pixelStream = wb.PixelBuffer.AsStream())
+                {
+                    int bytes = Math.Abs(bmpData.Stride) * src.Height;
+                    byte[] buffer = new byte[bytes];
+                    System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, buffer, 0, bytes);
+                    pixelStream.Write(buffer, 0, bytes);
+                }
             }
+            finally
+            {
+                src.UnlockBits(bmpData);
+            }
+
+            return wb;
         }
 
         public static Bitmap BitmapSource2Bitmap(BitmapSource src)
