@@ -14,6 +14,8 @@ namespace Kikuzuki
         [
             "Afrikaans",
             "Arabic",
+            "Chinese Simplified",
+            "Chinese Traditional",
             "Czech",
             "Danish",
             "Dutch",

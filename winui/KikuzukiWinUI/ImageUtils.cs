@@ -36,13 +36,13 @@ namespace Kikuzuki
             Bitmap dst = new Bitmap(src);
             using (Graphics graphic = Graphics.FromImage(dst))
             {
-                Pen pen = new Pen(Color.Red, 2);
+                Pen pen = new Pen(Color.Green, 2);
                 boxes.ForEach(box =>
                 {
                     graphic.DrawRectangle(pen, box);
 
                     int index = boxes.FindIndex(a => a.Contains(box));
-                    graphic.DrawString(texts[index], new Font("Tahoma", 16), Brushes.Black, box);
+                    graphic.DrawString(texts[index], new Font("Tahoma", 16), Brushes.Red, box);
                 });
 
                 return dst;
@@ -60,7 +60,7 @@ namespace Kikuzuki
                     graphic.FillRectangle(brush, box);
 
                     int index = boxes.FindIndex(a => a.Contains(box));
-                    graphic.DrawString(texts[index], new Font("Tahoma", 16), Brushes.Black, box);
+                    graphic.DrawString(texts[index], new Font("Tahoma", 16), Brushes.Red, box);
                 });
 
                 return dst;

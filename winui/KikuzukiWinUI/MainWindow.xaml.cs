@@ -47,7 +47,7 @@ namespace KikuzukiWinUI
 
             ImgCamera.Source = _frame.ToWriteableBitmap();
 
-            this.AppWindow.Resize(new SizeInt32(610, 745));
+            this.AppWindow.Resize(new SizeInt32(755, 745));
         }
 
         private void InitializeDevice()
@@ -221,7 +221,7 @@ namespace KikuzukiWinUI
                 RecognizedText recognizedText = await _textRecoClient.RecognizeTextAsync(_capturedFrame.ToSoftwareBitmap());
                 TextRecoClient.RecognizedTextToBoxesAndTexts(recognizedText, out List<System.Drawing.Rectangle> boxes, out string[] texts);
 
-                string targetLanguage = (string)((ComboBoxItem)ComboBoxLang.SelectedItem).Content;
+                string targetLanguage = (string)ComboBoxLang.SelectedValue;
                 var textList = new List<string>();
                 foreach (var text in texts)
                 {
@@ -229,7 +229,7 @@ namespace KikuzukiWinUI
                 }
                 string[] transTexts = [.. textList];
 
-                Bitmap drawnBitmap = ImageUtils.DrawRectangleAndText(
+                Bitmap drawnBitmap = ImageUtils.ReplaceRectangleAndText(
                     _capturedFrame.ToBitmap(),
                     boxes,
                     transTexts);
