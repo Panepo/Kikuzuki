@@ -1,16 +1,14 @@
 using Kikuzuki;
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using Microsoft.Windows.AI.Imaging;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Windows.Graphics;
-using Windows.Graphics.Imaging;
 using static Kikuzuki.CameraEnumerator;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -178,11 +176,15 @@ namespace KikuzukiWinUI
             {
                 _isRecognizingText = true;
                 ButtonOCRText.Text = "Stop";
+                
                 RecognizedText recognizedText = await _textRecoClient.RecognizeTextAsync(_capturedFrame.ToSoftwareBitmap());
+                TextRecoClient.RecognizedTextToBoxesAndTexts(recognizedText, out List<System.Drawing.Rectangle> boxes, out string[] texts);
 
-                Mat renderedFrame = _capturedFrame.DrawRecognizedText(recognizedText);
-                ImageSource renderedBmp = renderedFrame.ToWriteableBitmap();
-                ImgCamera.Source = renderedBmp;
+                Bitmap drawnBitmap = ImageUtils.DrawRectangleAndText(
+                    _capturedFrame.ToBitmap(),
+                    boxes,
+                    texts);
+                ImgCamera.Source = ImageFormatExtensions.Bitmap2ImageSource(drawnBitmap);
 
                 _isRecognizingText = false;
                 ButtonOCRText.Text = "Recognize";

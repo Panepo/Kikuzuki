@@ -2,6 +2,8 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Windows.AI.Imaging;
 using OpenCvSharp;
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Graphics.Imaging;
@@ -80,5 +82,37 @@ public static class MatExtensions
             Cv2.PutText(dst, line.Text, textPosition, HersheyFonts.HersheySimplex, 0.7, Scalar.Blue, 2);
         }
         return dst;
+    }
+
+    public static Bitmap ToBitmap(this Mat mat)
+    {
+        if (mat == null || mat.Empty())
+            throw new ArgumentNullException(nameof(mat));
+
+        // Convert to BGRA if not already 4 channels
+        Mat bgraMat = mat.Type().Channels == 4
+            ? mat
+            : mat.CvtColor(OpenCvSharp.ColorConversionCodes.BGR2BGRA);
+
+        Bitmap bitmap = new Bitmap(bgraMat.Width, bgraMat.Height, PixelFormat.Format32bppArgb);
+
+        BitmapData data = bitmap.LockBits(
+            new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+            ImageLockMode.WriteOnly,
+            PixelFormat.Format32bppArgb);
+
+        // Copy data from Mat to Bitmap
+        // Marshal.Copy(byte[] source, int startIndex, IntPtr destination, int length)
+        byte[] buffer = new byte[bgraMat.Width * bgraMat.Height * 4];
+        Marshal.Copy(bgraMat.Data, buffer, 0, buffer.Length);
+        Marshal.Copy(buffer, 0, data.Scan0, buffer.Length);
+
+        bitmap.UnlockBits(data);
+
+        // Dispose temporary Mat if conversion was made
+        if (!ReferenceEquals(bgraMat, mat))
+            bgraMat.Dispose();
+
+        return bitmap;
     }
 }
