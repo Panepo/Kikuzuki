@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics;
 using Windows.Graphics.Imaging;
+using Windows.Media.Capture;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
@@ -160,6 +161,7 @@ namespace KikuzukiWinUI
             SoftwareBitmap convertedImage = SoftwareBitmap.Convert(inputBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             await bitmapSource.SetBitmapAsync(convertedImage);
             ImgCamera.Source = bitmapSource;
+            _capturedFrame = ImageFormatExtensions.SoftwareBitmapToMatAsync(convertedImage);
 
             ButtonRecognize.IsEnabled = true;
             ButtonOCR.IsEnabled = true;

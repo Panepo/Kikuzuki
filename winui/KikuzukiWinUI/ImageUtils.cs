@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -145,6 +146,26 @@ namespace Kikuzuki
                 bmp.UnlockBits(bmpData);
                 return bmp;
             }
+        }
+
+        public static Mat SoftwareBitmapToMatAsync(SoftwareBitmap softwareBitmap)
+        {
+            // Convert to BGRA8 if needed
+            if (softwareBitmap.BitmapPixelFormat != BitmapPixelFormat.Bgra8 ||
+                softwareBitmap.BitmapAlphaMode != BitmapAlphaMode.Premultiplied)
+            {
+                softwareBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+            }
+
+            int width = softwareBitmap.PixelWidth;
+            int height = softwareBitmap.PixelHeight;
+            int stride = width * 4;
+            byte[] pixels = new byte[height * stride];
+
+            softwareBitmap.CopyToBuffer(pixels.AsBuffer());
+
+            // Use the public FromArray method to create the Mat
+            return Mat.FromArray(pixels).Reshape(4, height);
         }
     }
 }
