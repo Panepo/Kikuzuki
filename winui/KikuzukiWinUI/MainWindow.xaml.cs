@@ -2,14 +2,23 @@ using Kikuzuki;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Shapes;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.Windows.AI.Imaging;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics;
+using Windows.Graphics.Imaging;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using static Kikuzuki.CameraEnumerator;
+
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -102,11 +111,97 @@ namespace KikuzukiWinUI
             }
         }
 
-        private void ComboBoxLangChanged(object sender, SelectionChangedEventArgs e)
+        private async void ButtonOpenClick(object sender, RoutedEventArgs e)
         {
+            var window = new Microsoft.UI.Xaml.Window();
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
 
+            var picker = new FileOpenPicker();
+
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            picker.FileTypeFilter.Add(".png");
+            picker.FileTypeFilter.Add(".jpeg");
+            picker.FileTypeFilter.Add(".jpg");
+
+            picker.ViewMode = PickerViewMode.Thumbnail;
+
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                using var stream = await file.OpenReadAsync();
+                await SetImage(stream);
+            }
         }
 
+        private async Task SetImage(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                StorageFile file = await StorageFile.GetFileFromPathAsync(filePath);
+                using IRandomAccessStream stream = await file.OpenReadAsync();
+                await SetImage(stream);
+            }
+        }
+
+        private async Task SetImage(IRandomAccessStream stream)
+        {
+            var decoder = await BitmapDecoder.CreateAsync(stream);
+            SoftwareBitmap inputBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+
+            if (inputBitmap == null)
+            {
+                return;
+            }
+
+            var bitmapSource = new SoftwareBitmapSource();
+
+            // This conversion ensures that the image is Bgra8 and Premultiplied
+            SoftwareBitmap convertedImage = SoftwareBitmap.Convert(inputBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+            await bitmapSource.SetBitmapAsync(convertedImage);
+            ImgCamera.Source = bitmapSource;
+
+            ButtonRecognize.IsEnabled = true;
+            ButtonOCR.IsEnabled = true;
+            ButtonTrans.IsEnabled = true;
+            TextRecognized.Text = string.Empty;
+        }
+
+        private async void ButtonCopyClick(object sender, RoutedEventArgs e)
+        {
+            var package = Clipboard.GetContent();
+            if (package.Contains(StandardDataFormats.Bitmap))
+            {
+                RectCanvas.Visibility = Visibility.Collapsed;
+                var streamRef = await package.GetBitmapAsync();
+
+                IRandomAccessStream stream = await streamRef.OpenReadAsync();
+                await SetImage(stream);
+            }
+            else if (package.Contains(StandardDataFormats.StorageItems))
+            {
+                var storageItems = await package.GetStorageItemsAsync();
+                if (IsImageFile(storageItems[0].Path))
+                {
+                    try
+                    {
+                        var storageFile = await StorageFile.GetFileFromPathAsync(storageItems[0].Path);
+                        using var stream = await storageFile.OpenReadAsync();
+                        await SetImage(stream);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception("Invalid image file");
+                    }
+                }
+            }
+        }
+
+        private static bool IsImageFile(string fileName)
+        {
+            string[] imageExtensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif"];
+            return imageExtensions.Contains(System.IO.Path.GetExtension(fileName)?.ToLowerInvariant());
+        }
 
         private void ProcessFrame(object? sender, object? args)
         {
@@ -246,6 +341,10 @@ namespace KikuzukiWinUI
             ImgCamera.Source = _blackMat.ToWriteableBitmap();
             _capturedFrame = _blackMat;
             TextRecognized.Text = string.Empty;
+
+            ButtonRecognize.IsEnabled = false;
+            ButtonOCR.IsEnabled = false;
+            ButtonTrans.IsEnabled = false;
         }
     }
 }
