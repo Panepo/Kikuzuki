@@ -12,22 +12,23 @@ namespace Kikuzuki
     {
         private MediaCapture? _capture;
         private DispatcherTimer _timer;
+        private MediaCaptureInitializationSettings _settings;
 
         public WinCamera(MediaCaptureInitializationSettings settings, EventHandler<object> eventHandler)
         {
-            _ = InitializeAsync(settings);
-
             _timer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(33) // 約30fps
             };
             _timer.Tick += eventHandler;
+
+            _settings = settings;
         }
 
-        public async Task InitializeAsync(MediaCaptureInitializationSettings settings)
+        private async Task InitializeAsync()
         {
             _capture = new MediaCapture();
-            await _capture.InitializeAsync(settings); // You can pass MediaCaptureInitializationSettings to pick device
+            await _capture.InitializeAsync(_settings); // You can pass MediaCaptureInitializationSettings to pick device
         }
 
         // =================================================================================
@@ -46,6 +47,7 @@ namespace Kikuzuki
         {
             if (!_timer.IsEnabled && _capture != null)
             {
+                await InitializeAsync();
                 await _capture.StartPreviewAsync();
                 _timer.Start();
             }
@@ -78,10 +80,10 @@ namespace Kikuzuki
         // =================================================================================
         // parameter settings
         // =================================================================================
-        public async void SetDevice(MediaCaptureInitializationSettings settings, EventHandler<object> eventHandler)
+        public void SetDevice(MediaCaptureInitializationSettings settings, EventHandler<object> eventHandler)
         {
             _capture?.Dispose();
-            await InitializeAsync(settings);
+            _settings = settings;
 
             _timer = new DispatcherTimer();
             _timer.Tick += eventHandler;
