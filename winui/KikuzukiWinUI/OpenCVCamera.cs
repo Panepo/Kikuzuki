@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Kikuzuki
 {
-    internal class Camera
+    internal class OpenCVCamera
     {
         // =================================================================================
         // global variables
@@ -18,16 +18,16 @@ namespace Kikuzuki
         private VideoCapture _capture;
         private DispatcherTimer _timer;
 
-        private int _height;
-        private int _width;
-        private double _brightness;
-        private double _sharpness;
-        private double _contrast;
+        //private int _height;
+        //private int _width;
+        //private double _brightness;
+        //private double _sharpness;
+        //private double _contrast;
 
         // =================================================================================
         // constructor
         // =================================================================================
-        public Camera(int deviceId, EventHandler<object> eventHandler)
+        public OpenCVCamera(int deviceId, EventHandler<object> eventHandler)
         {
             _capture = new VideoCapture(deviceId);
             _timer = new DispatcherTimer

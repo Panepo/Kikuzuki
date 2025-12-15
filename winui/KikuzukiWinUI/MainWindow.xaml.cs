@@ -15,6 +15,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics;
 using Windows.Graphics.Imaging;
 using Windows.Media.Capture;
+using Windows.Media.MediaProperties;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
@@ -31,14 +32,18 @@ namespace KikuzukiWinUI
     /// </summary>
     public sealed partial class MainWindow : Microsoft.UI.Xaml.Window
     {
-        private static readonly Mat _blackMat = new(480, 600, MatType.CV_8UC3, Scalar.Black);
+        private static readonly SoftwareBitmap blackBitmap = new(
+            BitmapPixelFormat.Bgra8,
+            600, // width
+            480, // height,
+            BitmapAlphaMode.Premultiplied);
+        private readonly SoftwareBitmapSource blackbitmapSource = new();
 
         private CameraDevice _selCamera;
-        private Camera? _cam;
-        private Mat _frame = _blackMat;
+        private WinCamera? _cam;
+        private MediaCaptureInitializationSettings? settings;
         private bool _isStreaming = false;
-        
-        private Mat _capturedFrame = _blackMat;
+        private SoftwareBitmap _capturedImage = blackBitmap;
 
         private ImageDescClient? _imgDescClient;
         private bool _isRecognizing = false;
@@ -55,7 +60,7 @@ namespace KikuzukiWinUI
             InitializeDevice();
             InitializeFunction();
 
-            ImgCamera.Source = _frame.ToWriteableBitmap();
+
 
             this.AppWindow.Resize(new SizeInt32(755, 745));
         }
@@ -73,8 +78,11 @@ namespace KikuzukiWinUI
             }
         }
 
-        private void InitializeFunction()
+        private async void InitializeFunction()
         {
+            await blackbitmapSource.SetBitmapAsync(blackBitmap);
+            ImgCamera.Source = blackbitmapSource;
+
             _imgDescClient = new ImageDescClient();
             _imgDescClient.OnProcessed += (mObjct, mArgs) =>
             {
@@ -98,7 +106,7 @@ namespace KikuzukiWinUI
             }
         }
 
-        private void ComboBoxCameraChanged(object sender, SelectionChangedEventArgs e)
+        private void ComboBoxCameraChanged(object _, SelectionChangedEventArgs __)
         {
             string selectedCamera = (string)ComboBoxCamera.SelectedValue;
 
@@ -112,7 +120,7 @@ namespace KikuzukiWinUI
             }
         }
 
-        private async void ButtonOpenClick(object sender, RoutedEventArgs e)
+        private async void ButtonOpenClick(object _, RoutedEventArgs __)
         {
             var window = new Microsoft.UI.Xaml.Window();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
@@ -161,7 +169,7 @@ namespace KikuzukiWinUI
             SoftwareBitmap convertedImage = SoftwareBitmap.Convert(inputBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             await bitmapSource.SetBitmapAsync(convertedImage);
             ImgCamera.Source = bitmapSource;
-            _capturedFrame = ImageFormatExtensions.SoftwareBitmapToMatAsync(convertedImage);
+            _capturedImage = convertedImage;
 
             ButtonRecognize.IsEnabled = true;
             ButtonOCR.IsEnabled = true;
@@ -169,7 +177,7 @@ namespace KikuzukiWinUI
             TextRecognized.Text = string.Empty;
         }
 
-        private async void ButtonCopyClick(object sender, RoutedEventArgs e)
+        private async void ButtonCopyClick(object _, RoutedEventArgs __)
         {
             var package = Clipboard.GetContent();
             if (package.Contains(StandardDataFormats.Bitmap))
@@ -191,7 +199,7 @@ namespace KikuzukiWinUI
                         using var stream = await storageFile.OpenReadAsync();
                         await SetImage(stream);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         throw new Exception("Invalid image file");
                     }
@@ -205,24 +213,25 @@ namespace KikuzukiWinUI
             return imageExtensions.Contains(System.IO.Path.GetExtension(fileName)?.ToLowerInvariant());
         }
 
-        private void ProcessFrame(object? sender, object? args)
+        private async void ProcessFrame(object? sender, object? args)
         {
             if (_cam == null) throw new Exception("Camera not initialized.");
 
-            _frame = _cam.FrameCapture();
-
-            if (_frame != null)
+            var frame = await _cam.FrameCaptureAsync();
+            if (frame != null)
             {
-                ImageSource bmp = _frame.ToWriteableBitmap();
-                ImgCamera.Source = bmp;
+                _capturedImage = frame;
+                var bitmapSource = new SoftwareBitmapSource();
+                await bitmapSource.SetBitmapAsync(frame);
+                ImgCamera.Source = bitmapSource;
             }
         }
 
-        private void ButtonCameraClick(object sender, RoutedEventArgs e)
+        private void ButtonCameraClick(object _, RoutedEventArgs __)
         {
             if (_isStreaming)
             {
-                if (_frame != null)
+                if (_capturedImage != null)
                 {
                     _isStreaming = false;
                     ButtonCameraText.Text = "Camera Restart";
@@ -231,10 +240,6 @@ namespace KikuzukiWinUI
                     ButtonOCR.IsEnabled = true;
                     ButtonTrans.IsEnabled = true;
                     TextRecognized.Text = string.Empty;
-
-                    _capturedFrame = _frame.Clone();
-                    ImageSource bmp = _frame.ToWriteableBitmap();
-                    ImgCamera.Source = bmp;
 
                     _cam?.StopTimer();
                     _cam?.ReleaseCamera();
@@ -245,17 +250,27 @@ namespace KikuzukiWinUI
                 _isStreaming = true;
                 ButtonCameraText.Text = "Capture";
 
-                _capturedFrame = _blackMat;
+                _capturedImage = blackBitmap;
+                ImgCamera.Source = blackbitmapSource;
 
-                _cam = new Camera(_selCamera.deviceID, new EventHandler<object>(ProcessFrame));
+                settings = new MediaCaptureInitializationSettings
+                {
+                    StreamingCaptureMode = StreamingCaptureMode.Video, // Only video, no audio
+                    PhotoCaptureSource = PhotoCaptureSource.VideoPreview, // Use video preview for photo capture
+                    VideoDeviceId = _selCamera.deviceID.ToString(), // Use the selected camera device (convert int to string if needed)
+                    MediaCategory = MediaCategory.Communications, // Optional: optimize for communications
+                    SharingMode = MediaCaptureSharingMode.ExclusiveControl // Optional: exclusive control of the camera
+                };
+
+                _cam = new WinCamera(settings, new EventHandler<object>(ProcessFrame));
                 _cam.StartTimer();
             }
         }
 
-        private async void ButtonRecognizeClick(object sender, RoutedEventArgs e)
+        private void ButtonRecognizeClick(object _, RoutedEventArgs __)
         {
             if (_imgDescClient == null) throw new Exception("Image Description Client not initialized.");
-            if (_capturedFrame == null) throw new Exception("No captured frame available.");
+            if (_capturedImage == null) throw new Exception("No captured image available.");
 
             if (_isRecognizing)
             {
@@ -267,14 +282,14 @@ namespace KikuzukiWinUI
             {
                 _isRecognizing = true;
                 ButtonRecognizeText.Text = "Stop";
-                await _imgDescClient.DescribeImage(_capturedFrame.ToSoftwareBitmap());
+                _ = _imgDescClient.DescribeImage(_capturedImage);
             }
         }
 
-        private async void ButtonOCRClick(object sender, RoutedEventArgs e)
+        private void ButtonOCRClick(object _, RoutedEventArgs __)
         {
             if (_textRecoClient == null) throw new Exception("Text Recognition Client not initialized.");
-            if (_capturedFrame == null) throw new Exception("No captured frame available.");
+            if (_capturedImage == null) throw new Exception("No captured image available.");
 
             if (_isRecognizingText)
             {
@@ -286,25 +301,37 @@ namespace KikuzukiWinUI
                 _isRecognizingText = true;
                 ButtonOCRText.Text = "Stop";
                 
-                RecognizedText recognizedText = await _textRecoClient.RecognizeTextAsync(_capturedFrame.ToSoftwareBitmap());
-                TextRecoClient.RecognizedTextToBoxesAndTexts(recognizedText, out List<System.Drawing.Rectangle> boxes, out string[] texts);
-
-                Bitmap drawnBitmap = ImageUtils.DrawRectangleAndText(
-                    _capturedFrame.ToBitmap(),
-                    boxes,
-                    texts);
-                ImgCamera.Source = ImageFormatExtensions.Bitmap2ImageSource(drawnBitmap);
-
-                _isRecognizingText = false;
-                ButtonOCRText.Text = "Recognize";
-                TextRecognized.Text = string.Join('\n', texts);
+                _ = RecognizeTextAndUpdateUI();
             }
         }
 
-        private async void ButtonTransClick(object sender, RoutedEventArgs e)
+        private async Task RecognizeTextAndUpdateUI()
+        {
+            if (_textRecoClient == null) throw new Exception("Text Recognition Client not initialized.");
+            if (_capturedImage == null) throw new Exception("No captured image available.");
+
+            _isRecognizingText = true;
+            ButtonOCRText.Text = "Stop";
+
+            RecognizedText recognizedText = await _textRecoClient.RecognizeTextAsync(_capturedImage);
+            TextRecoClient.RecognizedTextToBoxesAndTexts(recognizedText, out List<System.Drawing.Rectangle> boxes, out string[] texts);
+
+            Bitmap drawnBitmap = ImageUtils.DrawRectangleAndText(
+                ImageFormatExtensions.SoftwareBitmapToBitmap(_capturedImage),
+                boxes,
+                texts);
+            ImgCamera.Source = ImageFormatExtensions.Bitmap2ImageSource(drawnBitmap);
+
+            _isRecognizingText = false;
+            ButtonOCRText.Text = "Recognize";
+            TextRecognized.Text = string.Join('\n', texts);
+        }
+
+        private void ButtonTransClick(object _, RoutedEventArgs __)
         {
             if (_textRecoClient == null) throw new Exception("Text Recognition Client not initialized.");
             if (_textTransClient == null) throw new Exception("Text Translation Client not initialized.");
+            if (_capturedImage == null) throw new Exception("No captured image available.");
             if (_isTranslatingText)
             {
                 _isTranslatingText = false;
@@ -315,33 +342,42 @@ namespace KikuzukiWinUI
                 _isTranslatingText = true;
                 ButtonTransText.Text = "Stop";
 
-                RecognizedText recognizedText = await _textRecoClient.RecognizeTextAsync(_capturedFrame.ToSoftwareBitmap());
-                TextRecoClient.RecognizedTextToBoxesAndTexts(recognizedText, out List<System.Drawing.Rectangle> boxes, out string[] texts);
-
-                string targetLanguage = (string)ComboBoxLang.SelectedValue;
-                var textList = new List<string>();
-                foreach (var text in texts)
-                {
-                    textList.Add(await _textTransClient.TranslateText(text, targetLanguage));
-                }
-                string[] transTexts = [.. textList];
-
-                Bitmap drawnBitmap = ImageUtils.ReplaceRectangleAndText(
-                    _capturedFrame.ToBitmap(),
-                    boxes,
-                    transTexts);
-                ImgCamera.Source = ImageFormatExtensions.Bitmap2ImageSource(drawnBitmap);
-
-                _isTranslatingText = false;
-                ButtonTransText.Text = "Translate";
-                TextRecognized.Text = string.Join('\n', transTexts);
+                _ = TranslateTextAndUpdateUI();
             }
         }
 
-        private void ButtonClearClick(object sender, RoutedEventArgs e)
+        private async Task TranslateTextAndUpdateUI()
         {
-            ImgCamera.Source = _blackMat.ToWriteableBitmap();
-            _capturedFrame = _blackMat;
+            if (_textRecoClient == null) throw new Exception("Text Recognition Client not initialized.");
+            if (_textTransClient == null) throw new Exception("Text Translation Client not initialized.");
+            if (_capturedImage == null) throw new Exception("No captured image available.");
+
+            RecognizedText recognizedText = await _textRecoClient.RecognizeTextAsync(_capturedImage);
+            TextRecoClient.RecognizedTextToBoxesAndTexts(recognizedText, out List<System.Drawing.Rectangle> boxes, out string[] texts);
+
+            string targetLanguage = (string)ComboBoxLang.SelectedValue;
+            var textList = new List<string>();
+            foreach (var text in texts)
+            {
+                textList.Add(await _textTransClient.TranslateText(text, targetLanguage));
+            }
+            string[] transTexts = [.. textList];
+
+            Bitmap drawnBitmap = ImageUtils.ReplaceRectangleAndText(
+                ImageFormatExtensions.SoftwareBitmapToBitmap(_capturedImage),
+                boxes,
+                transTexts);
+            ImgCamera.Source = ImageFormatExtensions.Bitmap2ImageSource(drawnBitmap);
+
+            _isTranslatingText = false;
+            ButtonTransText.Text = "Translate";
+            TextRecognized.Text = string.Join('\n', transTexts);
+        }
+
+        private void ButtonClearClick(object _, RoutedEventArgs __)
+        {
+            _capturedImage = blackBitmap;
+            ImgCamera.Source = blackbitmapSource;
             TextRecognized.Text = string.Empty;
 
             ButtonRecognize.IsEnabled = false;
