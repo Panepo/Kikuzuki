@@ -16,19 +16,13 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Viewbox x:Name="ImageViewbox" MaxHeight="480">
-                    <Grid
-                    x:Name="PaneGrid"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    CornerRadius="{ThemeResource OverlayCornerRadius}">
-                        <Image x:Name="ImgCamera" Stretch="Uniform"/>
-                        <Canvas
-                        x:Name="RectCanvas"
-                        Background="{ThemeResource SmokeFillColorDefaultBrush}"
-                        Visibility="Collapsed" />
-                    </Grid>
-                </Viewbox>
+                <StackPanel Orientation="Vertical">
+                    <MediaPlayerElement x:Name="PreviewElement"
+                                    Width="300"
+                                    Height="240"
+                                    AreTransportControlsEnabled="False" />
+                    <Image x:Name="ImgCamera" Stretch="Uniform" Width="300" Height="240"/>
+                </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="ButtonOpen" Click="ButtonOpenClick" Width="135" Height="35" Margin="5" HorizontalAlignment="Left">

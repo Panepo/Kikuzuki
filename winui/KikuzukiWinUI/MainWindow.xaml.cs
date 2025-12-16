@@ -16,6 +16,7 @@ using Windows.Graphics;
 using Windows.Graphics.Imaging;
 using Windows.Media.Capture;
 using Windows.Media.MediaProperties;
+using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
@@ -39,7 +40,7 @@ namespace KikuzukiWinUI
             BitmapAlphaMode.Premultiplied);
         private readonly SoftwareBitmapSource blackbitmapSource = new();
 
-        private CameraDevice _selCamera;
+        private string _selCameraId;
         private WinCamera? _cam;
         private MediaCaptureInitializationSettings? settings;
         private bool _isStreaming = false;
@@ -60,28 +61,20 @@ namespace KikuzukiWinUI
             InitializeDevice();
             InitializeFunction();
 
-
-
             this.AppWindow.Resize(new SizeInt32(755, 745));
         }
 
         private void InitializeDevice()
         {
-            foreach (CameraDevice camera in CameraEnumerator.Cameras)
+            foreach (var camera in CameraEnumerator.Cameras)
             {
-                ComboBoxCamera.Items.Add(camera.deviceName);
-            }
-            if (CameraEnumerator.Cameras.Length > 0)
-            {
-                ComboBoxCamera.SelectedIndex = 0;
-                _selCamera = Cameras[0];
+                ComboBoxCamera.Items.Add(camera.Name);
             }
         }
 
         private async void InitializeFunction()
         {
             await blackbitmapSource.SetBitmapAsync(blackBitmap);
-            ImgCamera.Source = blackbitmapSource;
 
             _imgDescClient = new ImageDescClient();
             _imgDescClient.OnProcessed += (mObjct, mArgs) =>
@@ -91,7 +84,7 @@ namespace KikuzukiWinUI
                     _isRecognizing = false;
                     _ = DispatcherQueue.TryEnqueue(() =>
                     {
-                        ButtonRecognizeText.Text = "Recognize";
+                        ButtonRecognizeText.Text = "Describe";
                         TextRecognized.Text = mArgs.Output;
                     });
                 }
@@ -103,20 +96,6 @@ namespace KikuzukiWinUI
             foreach (string lang in _textTransClient.languages)
             {
                 ComboBoxLang.Items.Add(lang);
-            }
-        }
-
-        private void ComboBoxCameraChanged(object _, SelectionChangedEventArgs __)
-        {
-            string selectedCamera = (string)ComboBoxCamera.SelectedValue;
-
-            for (var i = 0; i < CameraEnumerator.Cameras.Length; i++)
-            {
-                if (selectedCamera == CameraEnumerator.Cameras[i].deviceName)
-                {
-                    this._selCamera = CameraEnumerator.Cameras[i];
-                    break;
-                }
             }
         }
 
@@ -168,7 +147,6 @@ namespace KikuzukiWinUI
             // This conversion ensures that the image is Bgra8 and Premultiplied
             SoftwareBitmap convertedImage = SoftwareBitmap.Convert(inputBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             await bitmapSource.SetBitmapAsync(convertedImage);
-            ImgCamera.Source = bitmapSource;
             _capturedImage = convertedImage;
 
             ButtonRecognize.IsEnabled = true;
@@ -182,7 +160,6 @@ namespace KikuzukiWinUI
             var package = Clipboard.GetContent();
             if (package.Contains(StandardDataFormats.Bitmap))
             {
-                RectCanvas.Visibility = Visibility.Collapsed;
                 var streamRef = await package.GetBitmapAsync();
 
                 IRandomAccessStream stream = await streamRef.OpenReadAsync();
@@ -213,21 +190,7 @@ namespace KikuzukiWinUI
             return imageExtensions.Contains(System.IO.Path.GetExtension(fileName)?.ToLowerInvariant());
         }
 
-        private async void ProcessFrame(object? sender, object? args)
-        {
-            if (_cam == null) throw new Exception("Camera not initialized.");
-
-            var frame = await _cam.FrameCaptureAsync();
-            if (frame != null)
-            {
-                _capturedImage = frame;
-                var bitmapSource = new SoftwareBitmapSource();
-                await bitmapSource.SetBitmapAsync(frame);
-                ImgCamera.Source = bitmapSource;
-            }
-        }
-
-        private void ButtonCameraClick(object _, RoutedEventArgs __)
+        private async void ButtonCameraClick(object _, RoutedEventArgs __)
         {
             if (_isStreaming)
             {
@@ -241,7 +204,7 @@ namespace KikuzukiWinUI
                     ButtonTrans.IsEnabled = true;
                     TextRecognized.Text = string.Empty;
 
-                    _cam?.StopTimer();
+                    _cam?.PausePreview();
                     _cam?.ReleaseCamera();
                 }
             }
@@ -249,21 +212,21 @@ namespace KikuzukiWinUI
             {
                 _isStreaming = true;
                 ButtonCameraText.Text = "Capture";
-
                 _capturedImage = blackBitmap;
-                ImgCamera.Source = blackbitmapSource;
 
                 settings = new MediaCaptureInitializationSettings
                 {
-                    StreamingCaptureMode = StreamingCaptureMode.Video, // Only video, no audio
-                    PhotoCaptureSource = PhotoCaptureSource.VideoPreview, // Use video preview for photo capture
-                    VideoDeviceId = _selCamera.deviceID.ToString(), // Use the selected camera device (convert int to string if needed)
-                    MediaCategory = MediaCategory.Communications, // Optional: optimize for communications
-                    SharingMode = MediaCaptureSharingMode.ExclusiveControl // Optional: exclusive control of the camera
+                    MemoryPreference = MediaCaptureMemoryPreference.Auto,
+                    SharingMode = MediaCaptureSharingMode.ExclusiveControl,
+                    StreamingCaptureMode = StreamingCaptureMode.Video,
+                    VideoDeviceId = CameraEnumerator.Cameras[ComboBoxCamera.SelectedIndex].Id
                 };
 
-                _cam = new WinCamera(settings, new EventHandler<object>(ProcessFrame));
-                _cam.StartTimer();
+                _cam = new WinCamera(settings);
+                await _cam.InitializeAsync();
+
+                PreviewElement.SetMediaPlayer(_cam.MediaPlayer);
+                _cam.StartPreview();
             }
         }
 
