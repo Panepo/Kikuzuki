@@ -146,6 +146,7 @@ namespace KikuzukiWinUI
             SoftwareBitmap convertedImage = SoftwareBitmap.Convert(inputBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
             await bitmapSource.SetBitmapAsync(convertedImage);
             _capturedImage = convertedImage;
+            ImgCamera.Source = bitmapSource;
 
             ButtonRecognize.IsEnabled = true;
             ButtonOCR.IsEnabled = true;
@@ -211,6 +212,11 @@ namespace KikuzukiWinUI
                 _isStreaming = true;
                 ButtonCameraText.Text = "Capture";
                 _capturedImage = blackBitmap;
+
+                ButtonRecognize.IsEnabled = false;
+                ButtonOCR.IsEnabled = false;
+                ButtonTrans.IsEnabled = false;
+                TextRecognized.Text = string.Empty;
 
                 _cam = new OpenCVCamera(ComboBoxCamera.SelectedIndex, new EventHandler<object>(ProcessFrame));
                 _cam.StartTimer();
