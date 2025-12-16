@@ -76,7 +76,7 @@ public static class MatExtensions
                     new OpenCvSharp.Point(bbox.BottomRight.X, bbox.BottomRight.Y),
                     new OpenCvSharp.Point(bbox.BottomLeft.X, bbox.BottomLeft.Y)
                 };
-            Cv2.Polylines(dst, new[] { points }, isClosed: true, color: Scalar.Red, thickness: 2);
+            Cv2.Polylines(dst, [points], isClosed: true, color: Scalar.Red, thickness: 2);
             // Draw the recognized text above the bounding box
             var textPosition = new OpenCvSharp.Point(points[0].X, points[0].Y - 10);
             Cv2.PutText(dst, line.Text, textPosition, HersheyFonts.HersheySimplex, 0.7, Scalar.Blue, 2);
@@ -94,7 +94,7 @@ public static class MatExtensions
             ? mat
             : mat.CvtColor(OpenCvSharp.ColorConversionCodes.BGR2BGRA);
 
-        Bitmap bitmap = new Bitmap(bgraMat.Width, bgraMat.Height, PixelFormat.Format32bppArgb);
+        Bitmap bitmap = new(bgraMat.Width, bgraMat.Height, PixelFormat.Format32bppArgb);
 
         BitmapData data = bitmap.LockBits(
             new Rectangle(0, 0, bitmap.Width, bitmap.Height),

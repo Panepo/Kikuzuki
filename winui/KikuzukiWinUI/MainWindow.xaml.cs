@@ -40,9 +40,7 @@ namespace KikuzukiWinUI
             BitmapAlphaMode.Premultiplied);
         private readonly SoftwareBitmapSource blackbitmapSource = new();
 
-        private string _selCameraId;
-        private WinCamera? _cam;
-        private MediaCaptureInitializationSettings? settings;
+        private OpenCVCamera? _cam;
         private bool _isStreaming = false;
         private SoftwareBitmap _capturedImage = blackBitmap;
 
@@ -190,7 +188,7 @@ namespace KikuzukiWinUI
             return imageExtensions.Contains(System.IO.Path.GetExtension(fileName)?.ToLowerInvariant());
         }
 
-        private async void ButtonCameraClick(object _, RoutedEventArgs __)
+        private void ButtonCameraClick(object _, RoutedEventArgs __)
         {
             if (_isStreaming)
             {
@@ -204,7 +202,7 @@ namespace KikuzukiWinUI
                     ButtonTrans.IsEnabled = true;
                     TextRecognized.Text = string.Empty;
 
-                    _cam?.PausePreview();
+                    _cam?.StopTimer();
                     _cam?.ReleaseCamera();
                 }
             }
@@ -214,19 +212,19 @@ namespace KikuzukiWinUI
                 ButtonCameraText.Text = "Capture";
                 _capturedImage = blackBitmap;
 
-                settings = new MediaCaptureInitializationSettings
-                {
-                    MemoryPreference = MediaCaptureMemoryPreference.Auto,
-                    SharingMode = MediaCaptureSharingMode.ExclusiveControl,
-                    StreamingCaptureMode = StreamingCaptureMode.Video,
-                    VideoDeviceId = CameraEnumerator.Cameras[ComboBoxCamera.SelectedIndex].Id
-                };
+                _cam = new OpenCVCamera(ComboBoxCamera.SelectedIndex, new EventHandler<object>(ProcessFrame));
+                _cam.StartTimer();
+            }
+        }
 
-                _cam = new WinCamera(settings);
-                await _cam.InitializeAsync();
-
-                PreviewElement.SetMediaPlayer(_cam.MediaPlayer);
-                _cam.StartPreview();
+        private void ProcessFrame(object? sender, object? args)
+        {
+            if (_cam == null) throw new Exception("Camera not initialized.");
+            Mat frame = _cam.FrameCapture();
+            if (frame != null)
+            {
+                _capturedImage = frame.ToSoftwareBitmap();
+                ImgCamera.Source = frame.ToWriteableBitmap();
             }
         }
 
