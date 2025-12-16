@@ -59,7 +59,8 @@ namespace KikuzukiWinUI
             InitializeDevice();
             InitializeFunction();
 
-            this.AppWindow.Resize(new SizeInt32(755, 745));
+            ImgCamera.Source = blackbitmapSource;
+            this.AppWindow.Resize(new SizeInt32(1380, 800));
         }
 
         private void InitializeDevice()
@@ -201,6 +202,8 @@ namespace KikuzukiWinUI
                     ButtonRecognize.IsEnabled = true;
                     ButtonOCR.IsEnabled = true;
                     ButtonTrans.IsEnabled = true;
+                    ButtonOpen.IsEnabled = true;
+                    ButtonCopy.IsEnabled = true;
                     TextRecognized.Text = string.Empty;
 
                     _cam?.StopTimer();
@@ -216,6 +219,8 @@ namespace KikuzukiWinUI
                 ButtonRecognize.IsEnabled = false;
                 ButtonOCR.IsEnabled = false;
                 ButtonTrans.IsEnabled = false;
+                ButtonOpen.IsEnabled = false;
+                ButtonCopy.IsEnabled = false;
                 TextRecognized.Text = string.Empty;
 
                 _cam = new OpenCVCamera(ComboBoxCamera.SelectedIndex, new EventHandler<object>(ProcessFrame));

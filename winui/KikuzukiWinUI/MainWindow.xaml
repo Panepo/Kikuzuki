@@ -16,7 +16,7 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Viewbox x:Name="ImageViewbox" MaxHeight="480">
+                <Viewbox x:Name="ImageViewbox" Width="600" Height="480" Margin="5">
                     <Grid
                     x:Name="PaneGrid"
                     HorizontalAlignment="Stretch"
