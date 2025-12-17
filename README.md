@@ -4,6 +4,8 @@ C# implementation of Tesseract optical character recognition with pre-recongizin
 
 <img src="https://github.com/Panepo/Kikuzuki/blob/master/doc/usage1.png" alt="usage1" height="418" width="750"> <img src="https://github.com/Panepo/Kikuzuki/blob/master/doc/usage2.png" alt="usage2" height="418" width="750">
 
+Here's the readme for implementation by Microsoft Foundry on Windows. [Link](https://github.com/Panepo/Kikuzuki/blob/master/winui/README.md)
+
 ## Requirements
 
 * .NET Framework 4.6.1 runtime
