@@ -60,7 +60,6 @@ namespace KikuzukiWinUI
             InitializeFunction();
 
             ImgCamera.Source = blackbitmapSource;
-            this.AppWindow.Resize(new SizeInt32(1380, 800));
         }
 
         private void InitializeDevice()

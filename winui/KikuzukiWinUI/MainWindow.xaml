@@ -7,75 +7,263 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="KikuzukiWinUI">
+    Title="Kikuzuki - AI Vision Assistant">
 
     <Window.SystemBackdrop>
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid>
-        <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Horizontal">
-                <Viewbox x:Name="ImageViewbox" Width="600" Height="480" Margin="5">
-                    <Grid
-                    x:Name="PaneGrid"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    CornerRadius="{ThemeResource OverlayCornerRadius}">
-                        <Image x:Name="ImgCamera" Stretch="Uniform"/>
-                        <Canvas
-                        x:Name="RectCanvas"
-                        Background="{ThemeResource SmokeFillColorDefaultBrush}"
-                        Visibility="Collapsed" />
-                    </Grid>
-                </Viewbox>
-                <StackPanel Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="ButtonOpen" Click="ButtonOpenClick" Width="135" Height="35" Margin="5" HorizontalAlignment="Left">
-                            <TextBlock x:Name="ButtonOpenText">Open Image</TextBlock>
-                        </Button>
-                        <Button x:Name="ButtonCopy" Click="ButtonCopyClick" Width="135" Height="35" Margin="5" HorizontalAlignment="Left">
-                            <TextBlock x:Name="ButtonCopyText">Load Paste</TextBlock>
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <ComboBox
-                          x:Name="ComboBoxCamera"
-                          Margin="5"
-                          Width="135"
-                          Height="35"
-                          SelectedIndex="0">
-                        </ComboBox>
-                        <Button x:Name="ButtonCamera" Click="ButtonCameraClick" Width="135" Height="35" Margin="5" HorizontalAlignment="Left">
-                            <TextBlock x:Name="ButtonCameraText">Camera</TextBlock>
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="ButtonRecognize" Click="ButtonRecognizeClick" Width="135" Height="35" Margin="5" HorizontalAlignment="Left" IsEnabled="False">
-                            <TextBlock x:Name="ButtonRecognizeText">Describe</TextBlock>
-                        </Button>
-                        <Button x:Name="ButtonOCR" Click="ButtonOCRClick" Width="135" Height="35" Margin="5" HorizontalAlignment="Left" IsEnabled="False">
-                            <TextBlock x:Name="ButtonOCRText">Recognize</TextBlock>
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <ComboBox
-                          x:Name="ComboBoxLang"
-                          Margin="5"
-                          Width="135"
-                          Height="35"
-                          SelectedIndex="0">
-                        </ComboBox>
-                        <Button x:Name="ButtonTrans" Click="ButtonTransClick" Width="135" Height="35" Margin="5" HorizontalAlignment="Left" IsEnabled="False">
-                            <TextBlock x:Name="ButtonTransText">Translate</TextBlock>
-                        </Button>
-                    </StackPanel>
-                    <TextBox x:Name="TextRecognized" Width="280" Height="200" Margin="5" HorizontalAlignment="Left" TextWrapping="Wrap" IsReadOnly="True" />
-                    <Button x:Name="ButtonClear" Click="ButtonClearClick" Width="280" Height="35" Margin="5" HorizontalAlignment="Left">
-                        <TextBlock x:Name="ButtonClearText">Clear</TextBlock>
-                    </Button>
-                </StackPanel>
-            </StackPanel>
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Kikuzuki" 
+                       FontSize="28" 
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,4"/>
+            <TextBlock Text="AI-Powered Vision Assistant" 
+                       FontSize="14" 
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         </StackPanel>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Image Preview Card -->
+            <Border Grid.Column="0"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="12"
+                    Width="624"
+                    Height="504">
+                <Border.Shadow>
+                    <ThemeShadow />
+                </Border.Shadow>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" 
+                               Text="Preview" 
+                               FontSize="16" 
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12"/>
+                    
+                    <Viewbox Grid.Row="1" 
+                             x:Name="ImageViewbox" 
+                             Width="600" 
+                             Height="450">
+                        <Grid x:Name="PaneGrid"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              CornerRadius="4">
+                            <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                    CornerRadius="4"/>
+                            <Image x:Name="ImgCamera" Stretch="Uniform"/>
+                            <Canvas x:Name="RectCanvas"
+                                    Background="{ThemeResource SmokeFillColorDefaultBrush}"
+                                    Visibility="Collapsed" />
+                        </Grid>
+                    </Viewbox>
+                </Grid>
+            </Border>
+
+            <!-- Control Panel Card -->
+            <Border Grid.Column="2"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="16">
+                <Border.Shadow>
+                    <ThemeShadow />
+                </Border.Shadow>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="20">
+                        
+                        <!-- Image Source Section -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Image Source" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Button x:Name="ButtonOpen" 
+                                        Grid.Column="0"
+                                        Click="ButtonOpenClick" 
+                                        HorizontalAlignment="Stretch"
+                                        Height="40"
+                                        Style="{ThemeResource AccentButtonStyle}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8E5;" FontSize="16"/>
+                                        <TextBlock x:Name="ButtonOpenText" Text="Open Image"/>
+                                    </StackPanel>
+                                </Button>
+                                
+                                <Button x:Name="ButtonCopy" 
+                                        Grid.Column="2"
+                                        Click="ButtonCopyClick" 
+                                        HorizontalAlignment="Stretch"
+                                        Height="40">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE77F;" FontSize="16"/>
+                                        <TextBlock x:Name="ButtonCopyText" Text="Paste"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+
+                        <MenuFlyoutSeparator/>
+
+                        <!-- Camera Section -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Camera" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            
+                            <ComboBox x:Name="ComboBoxCamera"
+                                      HorizontalAlignment="Stretch"
+                                      Height="40"
+                                      SelectedIndex="0"
+                                      PlaceholderText="Select Camera"/>
+                            
+                            <Button x:Name="ButtonCamera" 
+                                    Click="ButtonCameraClick" 
+                                    HorizontalAlignment="Stretch"
+                                    Height="40">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE722;" FontSize="16"/>
+                                    <TextBlock x:Name="ButtonCameraText" Text="Camera"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <MenuFlyoutSeparator/>
+
+                        <!-- AI Functions Section -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="AI Functions" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Button x:Name="ButtonRecognize" 
+                                        Grid.Column="0"
+                                        Click="ButtonRecognizeClick" 
+                                        HorizontalAlignment="Stretch"
+                                        Height="40"
+                                        IsEnabled="False">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8B7;" FontSize="16"/>
+                                        <TextBlock x:Name="ButtonRecognizeText" Text="Describe"/>
+                                    </StackPanel>
+                                </Button>
+                                
+                                <Button x:Name="ButtonOCR" 
+                                        Grid.Column="2"
+                                        Click="ButtonOCRClick" 
+                                        HorizontalAlignment="Stretch"
+                                        Height="40"
+                                        IsEnabled="False">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8C1;" FontSize="16"/>
+                                        <TextBlock x:Name="ButtonOCRText" Text="OCR"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+
+                        <MenuFlyoutSeparator/>
+
+                        <!-- Translation Section -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Translation" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            
+                            <ComboBox x:Name="ComboBoxLang"
+                                      HorizontalAlignment="Stretch"
+                                      Height="40"
+                                      SelectedIndex="0"
+                                      PlaceholderText="Select Language"/>
+                            
+                            <Button x:Name="ButtonTrans" 
+                                    Click="ButtonTransClick" 
+                                    HorizontalAlignment="Stretch"
+                                    Height="40"
+                                    IsEnabled="False">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xF2B7;" FontSize="16"/>
+                                    <TextBlock x:Name="ButtonTransText" Text="Translate"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <MenuFlyoutSeparator/>
+
+                        <!-- Results Section -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Results" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            
+                            <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Padding="12">
+                                <ScrollViewer Height="180" 
+                                              VerticalScrollBarVisibility="Auto">
+                                    <TextBlock x:Name="TextRecognized" 
+                                               TextWrapping="Wrap"
+                                               LineHeight="20"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </ScrollViewer>
+                            </Border>
+                            
+                            <Button x:Name="ButtonClear" 
+                                    Click="ButtonClearClick" 
+                                    HorizontalAlignment="Stretch"
+                                    Height="40">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE894;" FontSize="16"/>
+                                    <TextBlock x:Name="ButtonClearText" Text="Clear All"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
